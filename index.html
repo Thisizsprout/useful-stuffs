@@ -3,618 +3,563 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UtiliTools Premium</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Multi-Utility Hub</title>
     <style>
-        /* 부드러운 뷰 전환 효과 */
-        .tool-view {
-            transition: all 0.3s ease-in-out;
+        :root {
+            --bg-color: #f5f7fb;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* 내비게이션 탭 */
+        nav {
+            display: flex;
+            gap: 10px;
+            max-width: 800px;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        nav button {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        nav button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* 메인 컨텐츠 영역 및 애니메이션 */
+        main {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .tab-content {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-        .tool-view.active {
+
+        .tab-content.active {
             display: block;
-            animation: fadeIn 0.4s ease-in-out;
+            opacity: 1;
+            transform: translateY(0);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        /* 로지텍 네온 모드 이스터에그 스타일 */
-        .neon-mode {
-            background: #0b0f19 !important;
-            color: #00ffcc !important;
+
+        /* 공통 입력 및 버튼 스타일 */
+        input, textarea, select.tool-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            outline: none;
         }
-        .neon-mode .bg-card {
-            background: #1e293b !important;
-            border: 1px solid #00ffcc !important;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+
+        input:focus, textarea:focus {
+            border-color: var(--primary);
         }
-        .neon-mode button:not(.nav-btn) {
-            background: linear-gradient(135deg, #00ffcc, #0099ff) !important;
-            color: #0b0f19 !important;
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+
+        button.btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .neon-text-glow {
-            animation: neonGlow 1.5s ease-in-out infinite alternate;
+
+        button.btn:hover {
+            background: var(--primary-hover);
         }
-        @keyframes neonGlow {
-            from { text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc; }
-            to { text-shadow: 0 0 10px #00ffcc, 0 0 20px #0099ff; }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            font-weight: 500;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* 계산기 격자 레이아웃 */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .calc-grid button {
+            padding: 20px;
+            font-size: 1.2rem;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .calc-grid button:hover { background: var(--bg-color); }
+        .calc-grid button.operator { color: var(--primary); font-weight: bold; }
+        .calc-grid button.equal { background: var(--primary); color: white; grid-column: span 2; }
+
+        /* 가로 배치 레이아웃용 */
+        .flex-group {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans transition-colors duration-500">
+<body>
 
-    <!-- 상단 헤더 -->
-    <header class="bg-white shadow-sm border-b border-gray-100 transition-colors duration-500 bg-card">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div id="logo" class="flex items-center space-x-2 cursor-pointer select-none">
-                <i class="fa-solid px-2 py-1 bg-indigo-600 text-white rounded-lg fa-screwdriver-wrench transition-transform duration-300" id="logo-icon"></i>
-                <span class="text-xl font-bold tracking-tight text-gray-900" id="logo-text">UtiliTools</span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <!-- 언어 변경 버튼 -->
-                <button id="lang-btn" class="text-sm font-medium px-3 py-1.5 border border-gray-200 rounded-full hover:bg-gray-50 transition">
-                    EN
-                </button>
-            </div>
-        </div>
+    <header>
+        <h1 id="txt-title">멀티 유틸리티 허브</h1>
+        <select id="lang-select" onchange="changeLanguage(this.value)">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+        </select>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- 사이드바 메뉴 (도구 목록) -->
-            <aside class="md:col-span-1 space-y-2">
-                <button onclick="switchView('calc')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium bg-indigo-50 text-indigo-700" data-tool="calc">
-                    <i class="fa-solid fa-calculator w-5"></i> <span data-i18n="menu_calc">계산기</span>
-                </button>
-                <button onclick="switchView('word')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="word">
-                    <i class="fa-solid fa-font w-5"></i> <span data-i18n="menu_word">글자 수 세기</span>
-                </button>
-                <button onclick="switchView('dday')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="dday">
-                    <i class="fa-solid fa-calendar-day w-5"></i> <span data-i18n="menu_dday">디데이 계산기</span>
-                </button>
-                <button onclick="switchView('picker')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="picker">
-                    <i class="fa-solid fa-ticket w-5"></i> <span data-i18n="menu_picker">랜덤 추첨기</span>
-                </button>
-                <button onclick="switchView('bmi')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="bmi">
-                    <i class="fa-solid fa-weight-scale w-5"></i> <span data-i18n="menu_bmi">BMI 계산기</span>
-                </button>
-                <button onclick="switchView('pwd')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="pwd">
-                    <i class="fa-solid fa-key w-5"></i> <span data-i18n="menu_pwd">비밀번호 생성기</span>
-                </button>
-                <button onclick="switchView('stopwatch')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="stopwatch">
-                    <i class="fa-solid fa-stopwatch w-5"></i> <span data-i18n="menu_stopwatch">스톱워치</span>
-                </button>
-                <button onclick="switchView('converter')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition font-medium text-gray-600 hover:bg-gray-100" data-tool="converter">
-                    <i class="fa-solid fa-arrows-spin w-5"></i> <span data-i18n="menu_converter">단위 변환기</span>
-                </button>
-            </aside>
+    <nav id="nav-tabs">
+        <!-- 자바스크립트에서 탭 버튼을 동적으로 생성합니다. -->
+    </nav>
 
-            <!-- 메인 도구 화면 영역 -->
-            <section class="md:col-span-3 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-colors duration-500 bg-card">
-                
-                <!-- 1. 계산기 -->
-                <div id="view-calc" class="tool-view active">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_calc">표준 계산기</h2>
-                    <div class="max-w-sm mx-auto">
-                        <input type="text" id="calc-display" readonly class="w-full text-right text-2xl p-4 bg-gray-100 rounded-xl mb-4 focus:outline-none" value="0">
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="clearCalc()" class="p-4 bg-red-100 text-red-600 rounded-xl font-bold">C</button>
-                            <button onclick="inputCalc('/')" class="p-4 bg-indigo-50 text-indigo-600 rounded-xl font-bold">/</button>
-                            <button onclick="inputCalc('*')" class="p-4 bg-indigo-50 text-indigo-600 rounded-xl font-bold">*</button>
-                            <button onclick="backspaceCalc()" class="p-4 bg-gray-100 rounded-xl font-bold"><i class="fa-solid fa-backspace"></i></button>
-                            
-                            <button onclick="inputCalc('7')" class="p-4 bg-gray-100 rounded-xl font-semibold">7</button>
-                            <button onclick="inputCalc('8')" class="p-4 bg-gray-100 rounded-xl font-semibold">8</button>
-                            <button onclick="inputCalc('9')" class="p-4 bg-gray-100 rounded-xl font-semibold">9</button>
-                            <button onclick="inputCalc('-')" class="p-4 bg-indigo-50 text-indigo-600 rounded-xl font-bold">-</button>
-                            
-                            <button onclick="inputCalc('4')" class="p-4 bg-gray-100 rounded-xl font-semibold">4</button>
-                            <button onclick="inputCalc('5')" class="p-4 bg-gray-100 rounded-xl font-semibold">5</button>
-                            <button onclick="inputCalc('6')" class="p-4 bg-gray-100 rounded-xl font-semibold">6</button>
-                            <button onclick="inputCalc('+')" class="p-4 bg-indigo-50 text-indigo-600 rounded-xl font-bold">+</button>
-                            
-                            <button onclick="inputCalc('1')" class="p-4 bg-gray-100 rounded-xl font-semibold">1</button>
-                            <button onclick="inputCalc('2')" class="p-4 bg-gray-100 rounded-xl font-semibold">2</button>
-                            <button onclick="inputCalc('3')" class="p-4 bg-gray-100 rounded-xl font-semibold">3</button>
-                            <button onclick="calculateResult()" class="row-span-2 p-4 bg-indigo-600 text-white rounded-xl font-bold">=</button>
-                            
-                            <button onclick="inputCalc('0')" class="col-span-2 p-4 bg-gray-100 rounded-xl font-semibold">0</button>
-                            <button onclick="inputCalc('.')" class="p-4 bg-gray-100 rounded-xl font-semibold">.</button>
-                        </div>
-                    </div>
-                </div>
+    <main>
+        <!-- 1. 계산기 -->
+        <div id="calc" class="tab-content">
+            <h2 id="title-calc">🧮 계산기</h2>
+            <input type="text" id="calc-display" readonly style="text-align: right; font-size: 1.5rem;">
+            <div class="calc-grid">
+                <button onclick="clearCalc()">C</button>
+                <button onclick="inputCalc('/')" class="operator">/</button>
+                <button onclick="inputCalc('*')" class="operator">*</button>
+                <button onclick="inputCalc('-')" class="operator">-</button>
+                <button onclick="inputCalc('7')">7</button>
+                <button onclick="inputCalc('8')">8</button>
+                <button onclick="inputCalc('9')">9</button>
+                <button onclick="inputCalc('+')" class="operator">+</button>
+                <button onclick="inputCalc('4')">4</button>
+                <button onclick="inputCalc('5')">5</button>
+                <button onclick="inputCalc('6')">6</button>
+                <button onclick="inputCalc('.')">.</button>
+                <button onclick="inputCalc('1')">1</button>
+                <button onclick="inputCalc('2')">2</button>
+                <button onclick="inputCalc('3')">3</button>
+                <button onclick="inputCalc('0')">0</button>
+                <button onclick="pressEqual()" class="equal">=</button>
+            </div>
+        </div>
 
-                <!-- 2. 글자 수 세기 -->
-                <div id="view-word" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_word">글자 수 세기</h2>
-                    <textarea id="word-input" oninput="countWords()" class="w-full h-48 p-4 border border-gray-200 rounded-xl focus:outline-indigo-600" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                        <div class="bg-gray-50 p-3 rounded-xl text-center bg-card">
-                            <p class="text-xs text-gray-500" data-i18n="word_with_space">공백 포함</p>
-                            <p id="count-with-space" class="text-xl font-bold text-indigo-600">0</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-xl text-center bg-card">
-                            <p class="text-xs text-gray-500" data-i18n="word_no_space">공백 제외</p>
-                            <p id="count-no-space" class="text-xl font-bold text-indigo-600">0</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-xl text-center bg-card">
-                            <p class="text-xs text-gray-500" data-i18n="word_count">단어 수</p>
-                            <p id="count-words" class="text-xl font-bold text-indigo-600">0</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-xl text-center bg-card">
-                            <p class="text-xs text-gray-500" data-i18n="word_bytes">예상 바이트</p>
-                            <p id="count-bytes" class="text-xl font-bold text-indigo-600">0 B</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- 2. 글자수 세기 -->
+        <div id="counter" class="tab-content">
+            <h2 id="title-counter">📝 글자수 세기</h2>
+            <textarea id="counter-input" rows="8" placeholder="텍스트를 입력하세요..." oninput="countText()"></textarea>
+            <div class="result-box" id="counter-result">
+                공백 포함: 0자 | 공백 제외: 0자
+            </div>
+        </div>
 
-                <!-- 3. 디데이 계산기 -->
-                <div id="view-dday" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_dday">디데이 계산기</h2>
-                    <div class="space-y-4 max-w-md">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1" data-i18n="label_target_date">목표 날짜 선택</label>
-                            <input type="date" id="dday-date" class="w-full p-3 border border-gray-200 rounded-xl">
-                        </div>
-                        <button onclick="calculateDDay()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-medium hover:bg-indigo-700 transition" data-i18n="btn_calc">계산하기</button>
-                        <div id="dday-result" class="hidden text-center p-6 bg-indigo-50 rounded-xl bg-card">
-                            <p class="text-sm text-gray-600" data-i18n="result_remaining">남은 시간</p>
-                            <p id="dday-output" class="text-3xl font-extrabold text-indigo-600 mt-1">D-Day</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- 3. 디데이 계산기 -->
+        <div id="dday" class="tab-content">
+            <h2 id="title-dday">📅 디데이 계산기</h2>
+            <input type="date" id="dday-date" onchange="calculateDDay()">
+            <div class="result-box" id="dday-result">날짜를 선택해 주세요.</div>
+        </div>
 
-                <!-- 4. 랜덤 추첨기 -->
-                <div id="view-picker" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_picker">랜덤 추첨기</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1" data-i18n="label_candidates">추첨 항목 목록 (줄바꿈으로 구분)</label>
-                            <textarea id="picker-items" class="w-full h-32 p-4 border border-gray-200 rounded-xl" placeholder="예:&#10;철수&#10;영희&#10;민수"></textarea>
-                        </div>
-                        <div class="w-32">
-                            <label class="block text-sm font-medium text-gray-600 mb-1" data-i18n="label_pick_count">추첨 인원</label>
-                            <input type="number" id="picker-count" value="1" min="1" class="w-full p-3 border border-gray-200 rounded-xl">
-                        </div>
-                        <button onclick="pickRandom()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-medium hover:bg-indigo-700 transition" data-i18n="btn_pick">추첨하기</button>
-                        <div id="picker-result" class="hidden p-4 bg-emerald-50 border border-emerald-200 rounded-xl bg-card">
-                            <p class="font-bold text-emerald-800 mb-2" data-i18n="result_picker">🎉 당첨 결과</p>
-                            <ul id="picker-output" class="list-disc pl-5 space-y-1 text-gray-700"></ul>
-                        </div>
-                    </div>
-                </div>
+        <!-- 4. 랜덤 추첨 -->
+        <div id="random" class="tab-content">
+            <h2 id="title-random">🎲 랜덤 추첨</h2>
+            <textarea id="random-input" rows="4" placeholder="항목들을 콤마(,)나 줄바꿈으로 구분해서 입력하세요..."></textarea>
+            <button class="btn" id="btn-draw" onclick="drawRandom()">추첨하기</button>
+            <div class="result-box" id="random-result">결과가 여기에 표시됩니다.</div>
+        </div>
 
-                <!-- 5. BMI 계산기 -->
-                <div id="view-bmi" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_bmi">BMI 비만도 계산기</h2>
-                    <div class="space-y-4 max-w-md">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-600 mb-1" data-i18n="label_height">신장 (cm)</label>
-                                <input type="number" id="bmi-height" placeholder="예: 175" class="w-full p-3 border border-gray-200 rounded-xl">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-600 mb-1" data-i18n="label_weight">체중 (kg)</label>
-                                <input type="number" id="bmi-weight" placeholder="예: 70" class="w-full p-3 border border-gray-200 rounded-xl">
-                            </div>
-                        </div>
-                        <button onclick="calculateBMI()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-medium hover:bg-indigo-700 transition" data-i18n="btn_calc">계산하기</button>
-                        <div id="bmi-result" class="hidden text-center p-6 rounded-xl bg-card">
-                            <p class="text-sm text-gray-600">당신의 BMI 지수</p>
-                            <p id="bmi-output" class="text-3xl font-extrabold mt-1">00.0</p>
-                            <p id="bmi-status" class="text-lg font-bold mt-2"></p>
-                        </div>
-                    </div>
-                </div>
+        <!-- 5. BMI 계산기 -->
+        <div id="bmi" class="tab-content">
+            <h2 id="title-bmi">⚖️ BMI 계산기</h2>
+            <div class="flex-group">
+                <input type="number" id="bmi-height" placeholder="키 (cm)">
+                <input type="number" id="bmi-weight" placeholder="몸무게 (kg)">
+            </div>
+            <button class="btn" id="btn-bmi" onclick="calcBMI()">계산하기</button>
+            <div class="result-box" id="bmi-result">신체 스펙을 입력해 주세요.</div>
+        </div>
 
-                <!-- 6. 비밀번호 생성기 -->
-                <div id="view-pwd" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_pwd">보안 비밀번호 생성기</h2>
-                    <div class="space-y-4 max-w-md">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">
-                                <span data-i18n="label_pwd_length">비밀번호 길이</span>: <span id="pwd-length-val">12</span>
-                            </label>
-                            <input type="range" id="pwd-length" min="6" max="30" value="12" oninput="document.getElementById('pwd-length-val').innerText=this.value" class="w-full accent-indigo-600">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="pwd-upper" checked class="rounded text-indigo-600">
-                                <span data-i18n="opt_upper">대문자 포함 (A-Z)</span>
-                            </label>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="pwd-lower" checked class="rounded text-indigo-600">
-                                <span data-i18n="opt_lower">소문자 포함 (a-z)</span>
-                            </label>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="pwd-num" checked class="rounded text-indigo-600">
-                                <span data-i18n="opt_num">숫자 포함 (0-9)</span>
-                            </label>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="pwd-sym" checked class="rounded text-indigo-600">
-                                <span data-i18n="opt_sym">특수문자 포함 (!@#$)</span>
-                            </label>
-                        </div>
-                        <button onclick="generatePassword()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-medium hover:bg-indigo-700 transition" data-i18n="btn_generate">생성하기</button>
-                        <div id="pwd-result" class="hidden flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-xl bg-card">
-                            <span id="pwd-output" class="font-mono text-lg font-bold select-all tracking-wider"></span>
-                            <button onclick="copyPassword()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium" data-i18n="btn_copy">복사</button>
-                        </div>
-                    </div>
-                </div>
+        <!-- 6. 암호 생성기 -->
+        <div id="password" class="tab-content">
+            <h2 id="title-pwd">🔒 암호 생성기</h2>
+            <input type="number" id="pwd-length" value="12" min="4" max="30" placeholder="암호 길이 (4~30)">
+            <button class="btn" id="btn-pwd" onclick="generatePassword()">비밀번호 생성</button>
+            <div class="result-box" id="pwd-result" style="font-family: monospace; font-size: 1.2rem; letter-spacing: 1px;">보안 암호가 여기에 표시됩니다.</div>
+        </div>
 
-                <!-- 7. 스톱워치 -->
-                <div id="view-stopwatch" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_stopwatch">스톱워치</h2>
-                    <div class="text-center space-y-6">
-                        <div id="stopwatch-display" class="text-5xl font-mono font-bold tracking-tight text-gray-900">00:00:00.<span class="text-3xl text-gray-400">00</span></div>
-                        <div class="flex justify-center space-x-3">
-                            <button id="sw-start-btn" onclick="toggleStopwatch()" class="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition" data-i18n="sw_start">시작</button>
-                            <button onclick="lapStopwatch()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition" data-i18n="sw_lap">기록</button>
-                            <button onclick="resetStopwatch()" class="px-6 py-3 bg-red-100 text-red-600 rounded-xl font-medium hover:bg-red-200 transition" data-i18n="sw_reset">초기화</button>
-                        </div>
-                        <div id="sw-laps" class="max-h-48 overflow-y-auto text-left max-w-xs mx-auto space-y-1 text-sm font-mono text-gray-600"></div>
-                    </div>
-                </div>
+        <!-- 7. 스톱워치 -->
+        <div id="stopwatch" class="tab-content">
+            <h2 id="title-stopwatch">⏱️ 스톱워치</h2>
+            <div class="result-box" id="sw-time" style="font-size: 2rem; font-family: monospace;">00:00:00.00</div>
+            <div class="flex-group" style="margin-top: 15px;">
+                <button class="btn" id="btn-sw-start" onclick="startSW()">시작</button>
+                <button class="btn" id="btn-sw-stop" onclick="stopSW()" style="background:#ef4444;">정지</button>
+                <button class="btn" id="btn-sw-reset" onclick="resetSW()" style="background:#64748b;">리셋</button>
+            </div>
+        </div>
 
-                <!-- 8. 단위 변환기 -->
-                <div id="view-converter" class="tool-view">
-                    <h2 class="text-xl font-bold mb-4" data-i18n="title_converter">단위 변환기</h2>
-                    <div class="space-y-4 max-w-md">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1" data-i18n="label_conv_type">변환 유형</label>
-                            <select id="conv-type" onchange="updateConverterUnits()" class="w-full p-3 border border-gray-200 rounded-xl bg-white text-gray-800">
-                                <option value="length" data-i18n="opt_len">길이 (cm ⇄ inch)</option>
-                                <option value="weight" data-i18n="opt_weight">무게 (kg ⇄ lb)</option>
-                                <option value="temp" data-i18n="opt_temp">온도 (°C ⇄ °F)</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4 items-center">
-                            <div>
-                                <input type="number" id="conv-input" value="1" oninput="convertUnit()" class="w-full p-3 border border-gray-200 rounded-xl">
-                                <span id="conv-unit-from" class="text-xs text-gray-500 mt-1 block px-1">cm</span>
-                            </div>
-                            <div class="text-center font-bold text-gray-400 text-xl">
-                                ⇄
-                            </div>
-                            <div>
-                                <input type="number" id="conv-output" readonly class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
-                                <span id="conv-unit-to" class="text-xs text-gray-500 mt-1 block px-1">inch</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
+        <!-- 8. 단위 변환기 -->
+        <div id="converter" class="tab-content">
+            <h2 id="title-converter">🔄 단위 변환기 (길이)</h2>
+            <div class="flex-group">
+                <input type="number" id="convert-input" value="1" oninput="convertUnit()">
+                <select id="convert-from" class="tool-input" style="width: 120px;" onchange="convertUnit()">
+                    <option value="cm">cm</option>
+                    <option value="m">m</option>
+                    <option value="km">km</option>
+                    <option value="inch">inch</option>
+                </select>
+            </div>
+            <div class="result-box" id="converter-result">결과가 여기에 표시됩니다.</div>
         </div>
     </main>
 
-    <!-- JavaScript 비즈니스 로직 -->
     <script>
-        // 1. 다국어 (i18n) 데이터 세트
-        const i18nData = {
+        // 다국어 데이터 번역 에러 없이 완전히 복구된 데이터 구조
+        const langData = {
             ko: {
-                menu_calc: "계산기", menu_word: "글자 수 세기", menu_dday: "디데이 계산기", menu_picker: "랜덤 추첨기",
-                menu_bmi: "BMI 계산기", menu_pwd: "비밀번호 생성기", menu_stopwatch: "스톱워치", menu_converter: "단위 변환기",
-                title_calc: "표준 계산기", title_word: "글자 수 세기", title_dday: "디데이 계산기", title_picker: "랜덤 추첨기",
-                title_bmi: "BMI 비만도 계산기", title_pwd: "보안 비밀번호 생성기", title_stopwatch: "스톱워치", title_converter: "단위 변환기",
-                word_with_space: "공백 포함", word_no_space: "공백 제외", word_count: "단어 수", word_bytes: "예상 바이트",
-                label_target_date: "목표 날짜 선택", btn_calc: "계산하기", result_remaining: "남은 시간",
-                label_candidates: "추첨 항목 목록 (줄바꿈으로 구분)", label_pick_count: "추첨 인원", btn_pick: "추첨하기", result_picker: "🎉 당첨 결과",
-                label_height: "신장 (cm)", label_weight: "체중 (kg)", label_pwd_length: "비밀번호 길이",
-                opt_upper: "대문자 포함 (A-Z)", opt_lower: "소문자 포함 (a-z)", opt_num: "숫자 포함 (0-9)", opt_sym: "특수문자 포함 (!@#$)",
-                btn_generate: "생성하기", btn_copy: "복사", sw_start: "시작", sw_stop: "중지", sw_lap: "기록", sw_reset: "초기화",
-                label_conv_type: "변환 유형", opt_len: "길이 (cm ⇄ inch)", opt_weight: "무게 (kg ⇄ lb)", opt_temp: "온도 (°C ⇄ °F)",
-                bmi_low: "저체중", bmi_normal: "정상 체중", bmi_over: "과체중", bmi_obese: "비만"
+                title: "멀티 유틸리티 허브",
+                calc: "🧮 계산기",
+                counter: "📝 글자수 세기",
+                dday: "📅 디데이 계산기",
+                random: "🎲 랜덤 추첨",
+                bmi: "⚖️ BMI 계산기",
+                password: "🔒 암호 생성기",
+                stopwatch: "⏱️ 스톱워치",
+                converter: "🔄 단위 변환기",
+                counterPlh: "텍스트를 입력하세요...",
+                counterRes: "공백 포함: {inc}자 | 공백 제외: {exc}자",
+                ddayPlh: "날짜를 선택해 주세요.",
+                ddayToday: "오늘입니다! 🎉",
+                randomPlh: "항목들을 콤마(,)나 줄바꿈으로 구분해서 입력하세요...",
+                randomBtn: "추첨하기",
+                randomRes: "결과가 여기에 표시됩니다.",
+                bmiBtn: "계산하기",
+                bmiRes: "신체 스펙을 입력해 주세요.",
+                pwdBtn: "비밀번호 생성",
+                pwdRes: "보안 암호가 여기에 표시됩니다.",
+                swStart: "시작", swStop: "정지", swReset: "리셋",
+                convRes: "결과가 여기에 표시됩니다."
             },
             en: {
-                menu_calc: "Calculator", menu_word: "Word Counter", menu_dday: "D-Day Calc", menu_picker: "Random Picker",
-                menu_bmi: "BMI Calc", menu_pwd: "Password Gen", menu_stopwatch: "Stopwatch", menu_converter: "Unit Converter",
-                title_calc: "Standard Calculator", title_word: "Word Counter", title_dday: "D-Day Calculator", title_picker: "Random Picker",
-                title_bmi: "BMI Calculator", title_pwd: "Secure Password Generator", title_stopwatch: "Stopwatch", title_converter: "Unit Converter",
-                word_with_space: "With Spaces", word_no_space: "No Spaces", word_count: "Words", word_bytes: "Est. Bytes",
-                label_target_date: "Select Target Date", btn_calc: "Calculate", result_remaining: "Remaining Time",
-                label_candidates: "Candidates (One per line)", label_pick_count: "Pick Count", btn_pick: "Draw Now", result_picker: "🎉 Winners",
-                label_height: "Height (cm)", label_weight: "Weight (kg)", label_pwd_length: "Password Length",
-                opt_upper: "Uppercase (A-Z)", opt_lower: "Lowercase (a-z)", opt_num: "Numbers (0-9)", opt_sym: "Special Characters (!@#$)",
-                btn_generate: "Generate", btn_copy: "Copy", sw_start: "Start", sw_stop: "Stop", sw_lap: "Lap", sw_reset: "Reset",
-                label_conv_type: "Conversion Type", opt_len: "Length (cm ⇄ inch)", opt_weight: "Weight (kg ⇄ lb)", opt_temp: "Temperature (°C ⇄ °F)",
-                bmi_low: "Underweight", bmi_normal: "Normal", bmi_over: "Overweight", bmi_obese: "Obese"
+                title: "Multi-Utility Hub",
+                calc: "🧮 Calculator",
+                counter: "📝 Word Counter",
+                dday: "📅 D-Day Tracker",
+                random: "🎲 Random Picker",
+                bmi: "⚖️ BMI Calculator",
+                password: "🔒 Pwd Generator",
+                stopwatch: "⏱️ Stopwatch",
+                converter: "🔄 Unit Converter",
+                counterPlh: "Type or paste your text here...",
+                counterRes: "With spaces: {inc} | Without spaces: {exc}",
+                ddayPlh: "Please select a date.",
+                ddayToday: "Today is the day! 🎉",
+                randomPlh: "Enter items separated by commas or newlines...",
+                randomBtn: "Pick Random",
+                randomRes: "Result will be displayed here.",
+                bmiBtn: "Calculate",
+                bmiRes: "Please enter your height and weight.",
+                pwdBtn: "Generate Password",
+                pwdRes: "Secure password will appear here.",
+                swStart: "Start", swStop: "Stop", swReset: "Reset",
+                convRes: "Result will be displayed here."
             }
         };
 
         let currentLang = 'ko';
+        const tabs = ['calc', 'counter', 'dday', 'random', 'bmi', 'password', 'stopwatch', 'converter'];
 
-        function toggleLang() {
-            currentLang = currentLang === 'ko' ? 'en' : 'ko';
-            document.getElementById('lang-btn').innerText = currentLang === 'ko' ? 'EN' : 'KO';
-            applyTranslations();
-            updateConverterUnits();
+        // 탭 메뉴 초기화 및 동적 생성
+        function initTabs() {
+            const nav = document.getElementById('nav-tabs');
+            nav.innerHTML = '';
+            tabs.forEach((tab, index) => {
+                const btn = document.createElement('button');
+                btn.id = `nav-btn-${tab}`;
+                btn.textContent = langData[currentLang][tab];
+                btn.className = index === 0 ? 'active' : '';
+                btn.onclick = () => switchTab(tab);
+                nav.appendChild(btn);
+            });
+            switchTab(tabs[0]);
         }
 
-        function applyTranslations() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18nData[currentLang][key]) {
-                    el.innerText = i18nData[currentLang][key];
-                }
-            });
-        }
-        document.getElementById('lang-btn').addEventListener('click', toggleLang);
-
-        // 2. 뷰 전환 기능
-        function switchView(toolId) {
-            document.querySelectorAll('.tool-view').forEach(view => view.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'bg-slate-700', 'text-emerald-400');
-                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
-            });
-
-            const targetView = document.getElementById(`view-${toolId}`);
-            if (targetView) targetView.classList.add('active');
-
-            const activeBtn = document.querySelector(`[data-tool="${toolId}"]`);
-            if (activeBtn) {
-                activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
-                if(document.body.classList.contains('neon-mode')) {
-                    activeBtn.classList.add('bg-slate-700', 'text-emerald-400');
+        // 부드러운 화면 전환 효과가 적용된 탭 변경 기능
+        function switchTab(tabId) {
+            tabs.forEach(id => {
+                const content = document.getElementById(id);
+                const btn = document.getElementById(`nav-btn-${id}`);
+                if (id === tabId) {
+                    content.style.display = 'block';
+                    setTimeout(() => content.classList.add('active'), 10);
+                    if(btn) btn.classList.add('active');
                 } else {
-                    activeBtn.classList.add('bg-indigo-50', 'text-indigo-700');
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                    if(btn) btn.classList.remove('active');
                 }
-            }
+            });
         }
 
-        // 3. 이스터에그: 로지텍 네온 모드
-        let logoClickCount = 0;
-        document.getElementById('logo').addEventListener('click', () => {
-            logoClickCount++;
-            if (logoClickCount === 5) {
-                document.body.classList.add('neon-mode');
-                document.getElementById('logo-icon').classList.remove('bg-indigo-600', 'text-white');
-                document.getElementById('logo-icon').classList.add('neon-text-glow');
-                document.getElementById('logo-text').classList.add('neon-text-glow');
-                
-                // 액티브 상태 사이드바 메뉴 갱신
-                const currentActive = document.querySelector('.tool-view.active').id.replace('view-', '');
-                switchView(currentActive);
-                alert("🎮 Logitech Neon Mode Activated!");
-            }
-        });
+        // 언어 변경 기능
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('txt-title').textContent = langData[lang].title;
+            
+            // 각 섹션 타이틀 업데이트
+            tabs.forEach(tab => {
+                document.getElementById(`title-${tab === 'password' ? 'pwd' : tab}`).textContent = langData[lang][tab];
+                const navBtn = document.getElementById(`nav-btn-${tab}`);
+                if (navBtn) navBtn.textContent = langData[lang][tab];
+            });
 
-        // ==================== [도구 기능 핵심 로직] ====================
+            // 플레이스홀더 및 버튼 텍스트 변경
+            document.getElementById('counter-input').placeholder = langData[lang].counterPlh;
+            document.getElementById('random-input').placeholder = langData[lang].randomPlh;
+            document.getElementById('btn-draw').textContent = langData[lang].randomBtn;
+            document.getElementById('btn-bmi').textContent = langData[lang].bmiBtn;
+            document.getElementById('btn-pwd').textContent = langData[lang].pwdBtn;
+            document.getElementById('btn-sw-start').textContent = langData[lang].swStart;
+            document.getElementById('btn-sw-stop').textContent = langData[lang].swStop;
+            document.getElementById('btn-sw-reset').textContent = langData[lang].swReset;
 
-        // [1] 계산기
-        let calcExpr = "";
-        function inputCalc(val) {
-            const display = document.getElementById('calc-display');
-            if (display.value === "0" && !isNaN(val)) {
-                calcExpr = val;
-            } else {
-                calcExpr += val;
-            }
-            display.value = calcExpr;
+            // 결과창 초기 문구 리셋
+            countText();
+            calculateDDay();
+            convertUnit();
         }
-        function clearCalc() {
-            calcExpr = "";
-            document.getElementById('calc-display').value = "0";
-        }
-        function backspaceCalc() {
-            calcExpr = calcExpr.slice(0, -1);
-            document.getElementById('calc-display').value = calcExpr || "0";
-        }
-        function calculateResult() {
+
+        // 1. 계산기 로직
+        let calcDisplay = document.getElementById('calc-display');
+        function inputCalc(val) { calcDisplay.value += val; }
+        function clearCalc() { calcDisplay.value = ''; }
+        function pressEqual() {
             try {
-                if (!calcExpr) return;
-                // 안전한 계산을 위해 Function 생성자 활용
-                const result = new Function(`return ${calcExpr}`)();
-                document.getElementById('calc-display').value = Number(result.toFixed(8));
-                calcExpr = String(result);
-            } catch {
-                document.getElementById('calc-display').value = "Error";
-                calcExpr = "";
+                if(calcDisplay.value) calcDisplay.value = eval(calcDisplay.value);
+            } catch(e) {
+                calcDisplay.value = 'Error';
             }
         }
 
-        // [2] 글자 수 세기
-        function countWords() {
-            const text = document.getElementById('word-input').value;
-            document.getElementById('count-with-space').innerText = text.length;
-            document.getElementById('count-no-space').innerText = text.replace(/\s/g, "").length;
-            document.getElementById('count-words').innerText = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+        // 2. 글자수 세기 로직
+        function countText() {
+            const text = document.getElementById('counter-input').value;
+            const incSpaces = text.length;
+            const excSpaces = text.replace(/\s/g, '').length;
             
-            // 바이트 계산 (상대적 한글 3B, 영문 1B 기준 계산)
-            let bytes = 0;
-            for(let i=0; i<text.length; i++) {
-                bytes += text.charCodeAt(i) > 128 ? 3 : 1;
-            }
-            document.getElementById('count-bytes').innerText = bytes + " B";
+            let template = langData[currentLang].counterRes;
+            document.getElementById('counter-result').textContent = template.replace('{inc}', incSpaces).replace('{exc}', excSpaces);
         }
 
-        // [3] 디데이 계산기
+        // 3. 디데이 로직
         function calculateDDay() {
-            const targetInput = document.getElementById('dday-date').value;
-            if(!targetInput) return;
-            
-            const target = new Date(targetInput);
-            target.setHours(0,0,0,0);
+            const dateVal = document.getElementById('dday-date').value;
+            const resBox = document.getElementById('dday-result');
+            if(!dateVal) {
+                resBox.textContent = langData[currentLang].ddayPlh;
+                return;
+            }
             const today = new Date();
             today.setHours(0,0,0,0);
+            const target = new Date(dateVal);
+            target.setHours(0,0,0,0);
             
             const diffTime = target - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            const resultBox = document.getElementById('dday-result');
-            const output = document.getElementById('dday-output');
-            resultBox.classList.remove('hidden');
-            
-            if (diffDays === 0) output.innerText = "D-Day (Today)";
-            else if (diffDays > 0) output.innerText = `D-${diffDays}`;
-            else output.innerText = `D+${Math.abs(diffDays)}`;
+            if(diffDays === 0) resBox.textContent = langData[currentLang].ddayToday;
+            else if(diffDays > 0) resBox.textContent = `D-${diffDays}`;
+            else resBox.textContent = `D+${Math.abs(diffDays)}`;
         }
 
-        // [4] 랜덤 추첨기
-        function pickRandom() {
-            const lines = document.getElementById('picker-items').value.split('\n').map(l => l.trim()).filter(l => l !== "");
-            const count = parseInt(document.getElementById('picker-count').value) || 1;
-            const resultBox = document.getElementById('picker-result');
-            const output = document.getElementById('picker-output');
-            
-            output.innerHTML = "";
-            if(lines.length === 0) return;
-            
-            resultBox.classList.remove('hidden');
-            // 원본 훼손 없는 셔플 추첨
-            const shuffled = [...lines].sort(() => 0.5 - Math.random());
-            const winners = shuffled.slice(0, Math.min(count, lines.length));
-            
-            winners.forEach(w => {
-                const li = document.createElement('li');
-                li.innerText = w;
-                output.appendChild(li);
-            });
+        // 4. 랜덤 추첨 로직
+        function drawRandom() {
+            const input = document.getElementById('random-input').value;
+            const resBox = document.getElementById('random-result');
+            if(!input.trim()) {
+                resBox.textContent = currentLang === 'ko' ? '항목을 입력해주세요.' : 'Please enter items.';
+                return;
+            }
+            const items = input.split(/,|\n/).map(item => item.trim()).filter(item => item);
+            const picked = items[Math.floor(Math.random() * items.length)];
+            resBox.textContent = `🎉 ${picked} 🎉`;
         }
 
-        // [5] BMI 계산기
-        function calculateBMI() {
+        // 5. BMI 계산기 로직
+        function calcBMI() {
             const h = parseFloat(document.getElementById('bmi-height').value) / 100;
             const w = parseFloat(document.getElementById('bmi-weight').value);
-            const resultBox = document.getElementById('bmi-result');
+            const resBox = document.getElementById('bmi-result');
             
-            if(!h || !w) return;
-            
-            const bmi = w / (h * h);
-            resultBox.classList.remove('hidden');
-            document.getElementById('bmi-output').innerText = bmi.toFixed(1);
-            
-            let status = "";
-            resultBox.className = "text-center p-6 rounded-xl bg-card border ";
-            
-            if (bmi < 18.5) {
-                status = i18nData[currentLang].bmi_low;
-                resultBox.classList.add('bg-blue-50', 'border-blue-200');
-            } else if (bmi < 23) {
-                status = i18nData[currentLang].bmi_normal;
-                resultBox.classList.add('bg-green-50', 'border-green-200');
-            } else if (bmi < 25) {
-                status = i18nData[currentLang].bmi_over;
-                resultBox.classList.add('bg-orange-50', 'border-orange-200');
-            } else {
-                status = i18nData[currentLang].bmi_obese;
-                resultBox.classList.add('bg-red-50', 'border-red-200');
+            if(!h || !w) {
+                resBox.textContent = langData[currentLang].bmiRes;
+                return;
             }
-            document.getElementById('bmi-status').innerText = status;
+            const bmi = (w / (h * h)).toFixed(1);
+            let status = '';
+            if(currentLang === 'ko') {
+                if(bmi < 18.5) status = '저체중';
+                else if(bmi < 23) status = '정상';
+                else if(bmi < 25) status = '과체중';
+                else status = '비만';
+            } else {
+                if(bmi < 18.5) status = 'Underweight';
+                else if(bmi < 25) status = 'Normal';
+                else if(bmi < 30) status = 'Overweight';
+                else status = 'Obese';
+            }
+            resBox.textContent = `BMI: ${bmi} (${status})`;
         }
 
-        // [6] 비밀번호 생성기
+        // 6. 암호 생성기 로직
         function generatePassword() {
-            const length = parseInt(document.getElementById('pwd-length').value);
-            const u = document.getElementById('pwd-upper').checked;
-            const l = document.getElementById('pwd-lower').checked;
-            const n = document.getElementById('pwd-num').checked;
-            const s = document.getElementById('pwd-sym').checked;
-            
-            let charPool = "";
-            if(u) charPool += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            if(l) charPool += "abcdefghijklmnopqrstuvwxyz";
-            if(n) charPool += "0123456789";
-            if(s) charPool += "!@#$%^&*()_+~`|}{[]:;?><,./-=";
-            
-            if(!charPool) return;
-            
+            const len = parseInt(document.getElementById('pwd-length').value) || 12;
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             let pwd = "";
-            for(let i=0; i<length; i++) {
-                pwd += charPool.charAt(Math.floor(Math.random() * charPool.length));
+            for (let i = 0; i < len; i++) {
+                pwd += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            
-            document.getElementById('pwd-result').classList.remove('hidden');
-            document.getElementById('pwd-output').innerText = pwd;
-        }
-        function copyPassword() {
-            const pwd = document.getElementById('pwd-output').innerText;
-            if(!pwd) return;
-            navigator.clipboard.writeText(pwd);
-            alert(currentLang === 'ko' ? "비밀번호가 복사되었습니다!" : "Password copied!");
+            document.getElementById('pwd-result').textContent = pwd;
         }
 
-        // [7] 스톱워치
-        let swInterval = null;
-        let swTime = 0; // 밀리초 단위
-        function toggleStopwatch() {
-            const btn = document.getElementById('sw-start-btn');
-            if (swInterval) {
-                clearInterval(swInterval);
-                swInterval = null;
-                btn.innerText = i18nData[currentLang].sw_start;
-                btn.className = "px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition";
-            } else {
-                let startTime = Date.now() - swTime;
-                swInterval = setInterval(() => {
-                    swTime = Date.now() - startTime;
-                    formatStopwatch();
-                }, 10);
-                btn.innerText = i18nData[currentLang].sw_stop;
-                btn.className = "px-6 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition";
+        // 7. 스톱워치 로직
+        let swInterval;
+        let swStartTime;
+        let swElapsedTime = 0;
+        function startSW() {
+            if(!swInterval) {
+                swStartTime = Date.now() - swElapsedTime;
+                swInterval = setInterval(updateSW, 10);
             }
         }
-        function formatStopwatch() {
-            let ms = Math.floor((swTime % 1000) / 10);
-            let sec = Math.floor((swTime / 1000) % 60);
-            let min = Math.floor((swTime / (1000 * 60)) % 60);
-            let hr = Math.floor(swTime / (1000 * 60 * 60));
-            
-            document.getElementById('stopwatch-display').innerHTML = 
-                `${String(hr).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}.<span class="text-3xl text-gray-400">${String(ms).padStart(2,'0')}</span>`;
-        }
-        function lapStopwatch() {
-            if(swTime === 0) return;
-            const container = document.getElementById('sw-laps');
-            const div = document.createElement('div');
-            div.className = "border-b border-gray-100 py-1 flex justify-between";
-            div.innerHTML = `<span>Lap ${container.children.length + 1}</span> <span>${document.getElementById('stopwatch-display').innerText}</span>`;
-            container.prepend(div);
-        }
-        function resetStopwatch() {
+        function stopSW() {
             clearInterval(swInterval);
             swInterval = null;
-            swTime = 0;
-            document.getElementById('stopwatch-display').innerHTML = `00:00:00.<span class="text-3xl text-gray-400">00</span>`;
-            document.getElementById('sw-start-btn').innerText = i18nData[currentLang].sw_start;
-            document.getElementById('sw-start-btn').className = "px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition";
-            document.getElementById('sw-laps').innerHTML = "";
+        }
+        function resetSW() {
+            stopSW();
+            swElapsedTime = 0;
+            document.getElementById('sw-time').textContent = "00:00:00.00";
+        }
+        function updateSW() {
+            swElapsedTime = Date.now() - swStartTime;
+            let m = Math.floor(swElapsedTime / 60000);
+            let s = Math.floor((swElapsedTime % 60000) / 1000);
+            let ms = Math.floor((swElapsedTime % 1000) / 10);
+            document.getElementById('sw-time').textContent = 
+                `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
         }
 
-        // [8] 단위 변환기
-        function updateConverterUnits() {
-            const type = document.getElementById('conv-type').value;
-            const fromLabel = document.getElementById('conv-unit-from');
-            const toLabel = document.getElementById('conv-unit-to');
-            
-            if (type === 'length') { fromLabel.innerText = "cm"; toLabel.innerText = "inch"; }
-            else if (type === 'weight') { fromLabel.innerText = "kg"; toLabel.innerText = "lb"; }
-            else if (type === 'temp') { fromLabel.innerText = "°C"; toLabel.innerText = "°F"; }
-            convertUnit();
-        }
+        // 8. 단위 변환기 로직
         function convertUnit() {
-            const type = document.getElementById('conv-type').value;
-            const input = parseFloat(document.getElementById('conv-input').value);
-            const output = document.getElementById('conv-output');
+            const val = parseFloat(document.getElementById('convert-input').value) || 0;
+            const from = document.getElementById('convert-from').value;
+            const resBox = document.getElementById('converter-result');
             
-            if (isNaN(input)) { output.value = ""; return; }
-            
-            if (type === 'length') output.value = (input * 0.393701).toFixed(4);
-            else if (type === 'weight') output.value = (input * 2.20462).toFixed(4);
-            else if (type === 'temp') output.value = ((input * 9/5) + 32).toFixed(2);
+            let cm = 0;
+            if(from === 'cm') cm = val;
+            else if(from === 'm') cm = val * 100;
+            else if(from === 'km') cm = val * 100000;
+            else if(from === 'inch') cm = val * 2.54;
+
+            const m = (cm / 100).toFixed(4);
+            const km = (cm / 100000).toFixed(6);
+            const inch = (cm / 2.54).toFixed(2);
+
+            if(currentLang === 'ko') {
+                resBox.innerHTML = `${cm} cm<br>${m} m<br>${km} km<br>${inch} inch`;
+            } else {
+                resBox.innerHTML = `${cm} cm<br>${m} m<br>${km} km<br>${inch} inch`;
+            }
         }
 
-        // 초기화 로드
+        // 페이지 로드 시 초기화
         window.onload = () => {
-            applyTranslations();
-            updateConverterUnits();
+            initTabs();
+            changeLanguage('ko');
         };
     </script>
 </body>
