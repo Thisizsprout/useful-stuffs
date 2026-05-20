@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UtiliTools Pro</title>
+    <!-- 🎬 4. 상단 노출 이름을 UtiliTools로 깔끔하게 고정 -->
+    <title>UtiliTools</title>
     <style>
         /* 🎨 글로벌 프리미엄 테마 시스템 */
         :root {
@@ -22,6 +23,7 @@
             --calc-text: #334155;
             --radial-1: rgba(147, 197, 253, 0.4);
             --radial-2: rgba(247, 185, 232, 0.4);
+            --dropdown-hover: #f1f5f9;
         }
 
         body.dark {
@@ -40,6 +42,7 @@
             --calc-text: #f8fafc;
             --radial-1: rgba(59, 130, 246, 0.15);
             --radial-2: rgba(219, 39, 119, 0.15);
+            --dropdown-hover: #334155;
         }
 
         * {
@@ -64,24 +67,11 @@
             background: radial-gradient(circle, var(--radial-2) 0%, rgba(255, 255, 255, 0) 70%); z-index: -1;
         }
 
-        /* 🎬 1. 화면 가장자리 골드 피드백 이펙트 레이어 */
-        #edge-effect-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 99999;
-            box-shadow: inset 0 0 0px rgba(255, 215, 0, 0);
-            transition: box-shadow 0.2s ease;
-        }
-        @keyframes edge-celebration {
-            0% { box-shadow: inset 0 0 80px rgba(255, 215, 0, 0.85); }
-            30% { box-shadow: inset 0 0 50px rgba(236, 72, 153, 0.6); }
-            100% { box-shadow: inset 0 0 0px rgba(255, 215, 0, 0); }
-        }
-        .trigger-glow { animation: edge-celebration 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
         header {
             background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             padding: 15px 24px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
             display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color);
+            position: relative; z-index: 100;
         }
 
         header h1 {
@@ -90,17 +80,34 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer;
         }
 
-        .controls { display: flex; gap: 8px; align-items: center; }
+        .controls { display: flex; gap: 8px; align-items: center; position: relative; }
         .control-btn {
             background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);
             padding: 8px 14px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            outline: none; touch-action: manipulation;
+            outline: none; touch-action: manipulation; display: flex; align-items: center; gap: 4px;
         }
-        select.control-btn { padding-right: 28px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 14px; }
+
+        /* 🎬 1. 커스텀 언어 선택 드롭다운 디자인 & 애니메이션 효과 */
+        .lang-dropdown-wrapper { position: relative; }
+        .lang-dropdown-list {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            background: var(--card-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%);
+            border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 12px 30px var(--shadow);
+            min-width: 110px; display: none; opacity: 0; transform: translateY(-10px);
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden; z-index: 1000;
+            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px); background-size: 8px 8px;
+        }
+        .lang-dropdown-list.show { display: block; opacity: 1; transform: translateY(0); }
+        .lang-item {
+            padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            color: var(--text-main); transition: background 0.15s; text-align: left;
+        }
+        .lang-item:hover { background: var(--dropdown-hover); }
 
         .container { max-width: 1100px; width: 100%; margin: 0 auto; padding: 30px 20px; flex: 1; }
 
-        /* 양방향 유기적 프레임 뷰 */
+        /* 양방향 프레임 뷰 가속 트랜지션 */
         .view-frame {
             opacity: 0; transform: translate3d(0, 15px, 0) scale(0.99);
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -136,17 +143,19 @@
         textarea, input, select.form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 14px; color: var(--text-main); padding: 14px; font-size: 16px; outline: none; margin-bottom: 14px; }
         textarea:focus, input:focus, select.form-control:focus { border-color: #2563eb; }
         
-        .action-btn { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border: none; padding: 14px 24px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; touch-action: manipulation; }
+        .action-btn { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border: none; padding: 14px 24px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; touch-action: manipulation; transition: transform 0.1s ease; }
         .action-btn:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
-        .result-box { margin-top: 16px; padding: 18px; background: var(--input-bg); border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 700; border: 2px dashed var(--input-border); }
+        .result-box { margin-top: 16px; padding: 18px; background: var(--input-bg); border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 700; border: 2px dashed var(--input-border); position: relative; overflow: hidden; }
 
-        /* 계산기 */
+        /* 🎬 3. 계산기 내부 상호작용 애니메이션 컴포넌트 */
         .calc-wrapper { display: flex; justify-content: center; }
         .calculator { background: var(--calc-bg); padding: 18px; border-radius: 24px; width: 100%; max-width: 310px; border: 1px solid var(--border-color); }
         .display-container { width: 100%; height: 75px; background: var(--input-bg); border-radius: 14px; margin-bottom: 14px; padding: 0 16px; display: flex; align-items: center; overflow-x: auto; border: 1px solid var(--input-border); }
-        .display { color: var(--text-main); font-size: 1.8rem; font-weight: 600; width: 100%; text-align: right; }
+        .display { color: var(--text-main); font-size: 1.8rem; font-weight: 600; width: 100%; text-align: right; transition: transform 0.08s ease; will-change: transform; }
+        .display.pop-anim { transform: scale(1.04); }
         .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .buttons button { padding: 15px 5px; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; background: var(--calc-btn); color: var(--calc-text); border: 1px solid var(--input-border); }
+        .buttons button { padding: 15px 5px; border-radius: 14px; font-size: 1.1rem; font-weight: 600; cursor: pointer; background: var(--calc-btn); color: var(--calc-text); border: 1px solid var(--input-border); transition: transform 0.08s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .buttons button:active { transform: scale(0.92); }
         .buttons button.operator { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
         body.dark .buttons button.operator { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
         .buttons button.equal { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; grid-column: span 2; border: none; }
@@ -162,13 +171,11 @@
         .check-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
         .check-item input { width: auto; margin-bottom: 0; }
 
-        /* 🎬 2. 비밀번호 입력 및 분리형 우측 버튼 폼 배치 */
         .split-input-container { display: flex; gap: 8px; width: 100%; margin-bottom: 14px; }
         .split-input-container input { margin-bottom: 0; flex: 1; text-align: center; font-family: monospace; font-weight: bold; }
         .split-input-container .side-btn { background: #10b981; color: white; border: none; padding: 0 20px; border-radius: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
         .split-input-container .side-btn:hover { background: #059669; }
 
-        /* 🎬 3. 대확장 단위변환 그리드 시스템 */
         .unit-grid-box { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
         .unit-grid-box select, .unit-grid-box input { margin-bottom: 0; }
         .unit-swap-icon { font-size: 1.2rem; color: var(--text-sub); text-align: center; font-weight: bold; }
@@ -177,8 +184,39 @@
         .toss-banner { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px var(--shadow); flex-wrap: wrap; gap: 12px; }
         .toss-banner-text h4 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
         .toss-banner-text p { font-size: 0.85rem; color: var(--text-sub); }
-        .toss-banner .suggest-btn { background: #2563eb; color: white; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; border: none; cursor: pointer; }
-        .tip-widget { text-align: center; color: var(--text-sub); font-size: 0.8rem; font-weight: 500; }
+        .toss-banner .suggest-btn { background: #2563eb; color: white; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; border: none; cursor: pointer; transition: transform 0.1s ease; }
+        .toss-banner .suggest-btn:active { transform: scale(0.95); }
+        .tip-widget { text-align: center; color: var(--text-sub); font-size: 0.8rem; font-weight: 500; height: 18px; transition: opacity 0.2s ease, transform 0.2s ease; }
+
+        /* 🎬 2. 의견 내기 성공 안내 토스트 알림 컴포넌트 */
+        .toast-msg {
+            position: fixed; bottom: 30px; left: 51%; transform: translateX(-50%) translateY(20px);
+            background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 12px 24px; border-radius: 30px;
+            font-size: 0.9rem; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 10000; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        body.dark .toast-msg { background: rgba(255, 255, 255, 0.95); color: #0f172a; }
+
+        /* 🎬 7. 로지텍 G HUB 앱 스타일의 고강도 테크니컬 RGB 링 오버레이 */
+        .logitech-neon-border {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; border-radius: 14px; z-index: 5;
+            box-shadow: inset 0 0 0px var(--input-border);
+        }
+        @keyframes logitech-wave-low {
+            0% { box-shadow: inset 0 0 15px #00ffff, 0 0 10px #00ffff; }
+            50% { box-shadow: inset 0 0 25px #aa00ff, 0 0 15px #aa00ff; }
+            100% { box-shadow: inset 0 0 15px #00ffff, 0 0 10px #00ffff; }
+        }
+        @keyframes logitech-wave-high {
+            0% { box-shadow: inset 0 0 25px #00ffff, 0 0 15px #ff0055; filter: hue-rotate(0deg); }
+            50% { box-shadow: inset 0 0 40px #00ff55, 0 0 25px #ffaa00; filter: hue-rotate(180deg); }
+            100% { box-shadow: inset 0 0 25px #00ffff, 0 0 15px #ff0055; filter: hue-rotate(360deg); }
+        }
+        .logitech-active-low { animation: logitech-wave-low 1.2s linear infinite; border: 2px solid #00ffff !important; }
+        .logitech-active-high { animation: logitech-wave-high 0.6s linear infinite; border: 2px solid #ff0055 !important; }
 
         @media (max-width: 600px) {
             .container { padding: 15px; }
@@ -191,21 +229,23 @@
 </head>
 <body>
 
-    <!-- 🎬 1. 가장자리 피드백 레이어 -->
-    <div id="edge-effect-layer"></div>
-
     <header>
+        <!-- 🎬 4. 메인 대시보드 로고 이름 고정 -->
         <h1 onclick="showHome()">✨ UtiliTools</h1>
         <div class="controls">
             <button class="control-btn" onclick="toggleTheme()" id="theme-btn">🌙 다크 모드</button>
-            <!-- 🎬 4. 토글 대신 직관적인 직접선택 드롭다운 도입 -->
-            <select class="control-btn" id="lang-select" onchange="changeLanguage(this.value)">
-                <option value="ko">🇰🇷 KO</option>
-                <option value="en">🇺🇸 EN</option>
-                <option value="ja">🇯🇵 JA</option>
-                <option value="zh">🇨🇳 ZH</option>
-                <option value="es">🇪🇸 ES</option>
-            </select>
+            
+            <!-- 🎬 1. 웹사이트 텍스처 및 부드러운 애니메이션이 추가된 수제 드롭다운 -->
+            <div class="lang-dropdown-wrapper">
+                <button class="control-btn" id="lang-btn" onclick="toggleLangDropdown(event)">🇰🇷 KO ▼</button>
+                <div class="lang-dropdown-list" id="lang-dropdown">
+                    <div class="lang-item" onclick="changeLanguage('ko')">🇰🇷 KO</div>
+                    <div class="lang-item" onclick="changeLanguage('en')">🇺🇸 EN</div>
+                    <div class="lang-item" onclick="changeLanguage('ja')">🇯🇵 JA</div>
+                    <div class="lang-item" onclick="changeLanguage('zh')">🇨🇳 ZH</div>
+                    <div class="lang-item" onclick="changeLanguage('es')">🇪🇸 ES</div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -217,30 +257,31 @@
                 <p id="txt-main-sub">매일 반복되는 번거로운 확인을 한곳에서 쉽고 빠르게 처리해요.</p>
             </div>
             
+            <!-- 🎬 6. 기능 밑 설명을 과장 없이 담백하고 전문적인 문구로 전면 수정 -->
             <div class="tool-grid">
                 <div class="tool-card" onclick="openTool('calculator-tool')">
-                    <span class="tool-icon">🧮</span><h3 id="card-calc-title">계산기</h3><p id="card-calc-desc">복잡한 수식도 쫀득한 손맛으로 완벽하게</p>
+                    <span class="tool-icon">🧮</span><h3 id="card-calc-title">계산기</h3><p id="card-calc-desc">사칙연산 및 소수점 계산 기능을 안정적으로 지원합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('counter-tool')">
-                    <span class="tool-icon">✍️</span><h3 id="card-count-title">글자수 세기</h3><p id="card-count-desc">글자수와 공백 제외 크기를 실시간으로 확인해요</p>
+                    <span class="tool-icon">✍️</span><h3 id="card-count-title">글자수 세기</h3><p id="card-count-desc">입력된 텍스트의 공백 포함 및 제외 자수를 계량합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('dday-tool')">
-                    <span class="tool-icon">📅</span><h3 id="card-dday-title">디데이</h3><p id="card-dday-desc">소중한 기념일과 시험 일정을 잊지 않도록</p>
+                    <span class="tool-icon">📅</span><h3 id="card-dday-title">디데이</h3><p id="card-dday-desc">지정한 목표 날짜 기준 남은 일수와 지난 일수를 연산합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('picker-tool')">
-                    <span class="tool-icon">🎰</span><h3 id="card-pick-title">랜덤 추첨</h3><p id="card-pick-desc">메뉴 선택이나 순번 고민을 3초 만에 끝내요</p>
+                    <span class="tool-icon">🎰</span><h3 id="card-pick-title">랜덤 추첨</h3><p id="card-pick-desc">기입한 항목 리스트에서 임의의 데이터를 공정하게 무작위 추출합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('bmi-tool')">
-                    <span class="tool-icon">⚖️</span><h3 id="card-bmi-title">BMI 계산기</h3><p id="card-bmi-desc">내 키와 몸무게에 맞는 건강 상태 측정</p>
+                    <span class="tool-icon">⚖️</span><h3 id="card-bmi-title">BMI 계산기</h3><p id="card-bmi-desc">신장과 체중 데이터를 기반으로 신체 질량 지수를 측정합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('password-tool')">
-                    <span class="tool-icon">🔒</span><h3 id="card-pw-title">비밀번호 생성기</h3><p id="card-pw-desc">강력하고 안전한 보안 암호를 원클릭으로</p>
+                    <span class="tool-icon">🔒</span><h3 id="card-pw-title">비밀번호 생성기</h3><p id="card-pw-desc">사용자 설정 규칙 조건에 맞춰 보안용 난수 암호를 생성합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('stopwatch-tool')">
-                    <span class="tool-icon">⏱️</span><h3 id="card-stop-title">스톱워치</h3><p id="card-stop-desc">0.01초까지 기록하는 깔끔한 타임 트래커</p>
+                    <span class="tool-icon">⏱️</span><h3 id="card-stop-title">스톱워치</h3><p id="card-stop-desc">0.01초 단위의 정밀한 실시간 시간 측정 기능을 수행합니다.</p>
                 </div>
                 <div class="tool-card" onclick="openTool('unit-tool')">
-                    <span class="tool-icon">🔄</span><h3 id="card-unit-title">단위 변환기</h3><p id="card-unit-desc">길이, 무게 등 헷갈리는 결합 단위를 한눈에</p>
+                    <span class="tool-icon">🔄</span><h3 id="card-unit-title">단위 변환기</h3><p id="card-unit-desc">길이, 무게, 넓이, 부피, 온도 등 다양한 단위를 상호 교환합니다.</p>
                 </div>
             </div>
         </div>
@@ -271,12 +312,15 @@
                 <div class="result-box" id="dday-result">날짜를 고르면 디데이가 나타나요.</div>
             </div>
 
-            <!-- [4] 랜덤 추첨기 (7초 고정연출화 기능 개선) -->
+            <!-- [4] 랜덤 추첨기 (🎬 7. 로지텍 G HUB 모티브 레이아웃 연출 업그레이드) -->
             <div id="picker-tool" class="tool-content" style="display:none;">
                 <div class="tool-title" id="t-pick-title">🎰 무작위 랜덤 추첨기</div>
-                <textarea id="picker-items" rows="4"></textarea>
+                <textarea id="picker-items" rows="4" placeholder="항목을 쉼표(,)나 줄바꿈으로 구분해 기입해주세요. 항목이 많을수록 이펙트가 고조됩니다."></textarea>
                 <button class="action-btn" id="btn-pick" onclick="pickRandom()">🎯 추첨하기</button>
-                <div class="result-box" id="picker-result">최종 낙점될 주인공은 누구일까요?</div>
+                <div class="result-box" id="picker-result">
+                    <div class="logitech-neon-border" id="logitech-border"></div>
+                    <span id="picker-text-node">최종 낙점될 주인공은 누구일까요?</span>
+                </div>
             </div>
 
             <!-- [5] BMI 계산기 -->
@@ -290,7 +334,7 @@
                 <div class="result-box" id="bmi-result">신체 치수를 기입해주세요.</div>
             </div>
 
-            <!-- [6] 비밀번호 생성기 (우측 고유 분리형 복사 버튼 구조) -->
+            <!-- [6] 비밀번호 생성기 -->
             <div id="password-tool" class="tool-content" style="display:none;">
                 <div class="tool-title">🔒 보안 고강도 암호 생성기</div>
                 <div><label id="lbl-pw-len">암호 길이: <span id="pw-len-val">12</span></label><input type="range" id="pw-length" min="6" max="30" value="12" oninput="document.getElementById('pw-len-val').textContent=this.value" style="padding:0; margin:10px 0; width:100%;"></div>
@@ -301,7 +345,6 @@
                 </div>
                 <button class="action-btn" onclick="generatePassword()" id="btn-pw-gen" style="margin-bottom:14px;">비밀번호 생성</button>
                 
-                <!-- 🎬 2. 분리형 복사 인터페이스 -->
                 <div class="split-input-container">
                     <input type="text" id="password-result" readonly placeholder="Result">
                     <button class="side-btn" onclick="copyPassword()" id="btn-pw-copy">복사</button>
@@ -318,12 +361,11 @@
                 </div>
             </div>
 
-            <!-- [8] 단위 변환기 (대규모 크로스 매트릭스 확장) -->
+            <!-- [8] 단위 변환기 -->
             <div id="unit-tool" class="tool-content" style="display:none;">
                 <div class="tool-title">🔄 전천후 대확장 단위 변환기</div>
                 <select id="unit-category" class="form-control" onchange="buildUnitDropdowns()" style="margin-bottom:14px; font-weight:700;"></select>
                 
-                <!-- 🎬 3. 복합 다차원 매칭 뷰 구조 -->
                 <div class="unit-grid-box">
                     <div>
                         <input type="number" id="unit-val-src" value="1" oninput="executeUnitConversion(1)">
@@ -339,29 +381,34 @@
         </div>
     </div>
 
+    <!-- 🎬 2. 정상 작동 및 알림 호출을 수정한 의견 내기 영역 -->
     <footer>
         <div class="toss-banner">
             <div class="toss-banner-text"><h4 id="banner-title">내가 찾는 도구가 없나요?</h4><p id="banner-desc">필요한 기능이 있다면 언제든 편하게 알려주세요.</p></div>
-            <button class="suggest-btn" id="banner-btn">의견 내기</button>
+            <button class="suggest-btn" id="banner-btn" onclick="submitFeedback()">의견 내기</button>
         </div>
+        <!-- 🎬 5. 유기적으로 순환 매칭되는 다이내믹 가변 팁 배치 영역 -->
         <div class="tip-widget" id="tip-display">💡</div>
     </footer>
 
+    <!-- 🎬 2. 정상 전송 완료 토스트 엘리먼트 -->
+    <div class="toast-msg" id="toast-alert">의견이 성공적으로 접수되었습니다. 감사합니다!</div>
+
     <script>
-        /* 🌐 글로벌 5대 대중 국가별 언어 시스템 데이터셋 */
+        /* 🌐 글로벌 5대 다국어 시스템 데이터셋 */
         let currentLang = 'ko';
         const langData = {
             ko: {
                 themeDark: "🌙 다크 모드", themeLight: "☀️ 라이트 모드",
                 mainTitle: "오늘 어떤 도구가 필요하세요?", mainSub: "매일 반복되는 번거로운 확인을 한곳에서 쉽고 빠르게 처리해요.",
-                calcTitle: "계산기", calcDesc: "복잡한 수식도 쫀득한 손맛으로 완벽하게",
-                countTitle: "글자수 세기", countDesc: "글자수와 공백 제외 크기를 실시간 확인해요",
-                ddayTitle: "디데이", ddayDesc: "소중한 기념일과 시험 일정을 잊지 않도록",
-                pickTitle: "랜덤 추첨", pickDesc: "메뉴 선택이나 순번 고민을 3초 만에 끝내요",
-                bmiTitle: "BMI 계산기", bmiDesc: "내 키와 몸무게에 맞는 건강 상태 측정",
-                pwTitle: "비밀번호 생성기", pwDesc: "강력하고 안전한 보안 암호를 원클릭으로",
-                stopTitle: "스톱워치", stopDesc: "0.01초까지 기록하는 깔끔한 타임 트래커",
-                unitTitle: "단위 변환기", unitDesc: "길이, 무게 등 헷갈리는 결합 단위를 한눈에",
+                calcTitle: "계산기", calcDesc: "사칙연산 및 소수점 계산 기능을 안정적으로 지원합니다.",
+                countTitle: "글자수 세기", countDesc: "입력된 텍스트의 공백 포함 및 제외 자수를 계량합니다.",
+                ddayTitle: "디데이", ddayDesc: "지정한 목표 날짜 기준 남은 일수와 지난 일수를 연산합니다.",
+                pickTitle: "랜덤 추첨", pickDesc: "기입한 항목 리스트에서 임의의 데이터를 공정하게 무작위 추출합니다.",
+                bmiTitle: "BMI 계산기", bmiDesc: "신장과 체중 데이터를 기반으로 신체 질량 지수를 측정합니다.",
+                pwTitle: "비밀번호 생성기", pwDesc: "사용자 설정 규칙 조건에 맞춰 보안용 난수 암호를 생성합니다.",
+                stopTitle: "스톱워치", stopDesc: "0.01초 단위의 정밀한 실시간 시간 측정 기능을 수행합니다.",
+                unitTitle: "단위 변환기", unitDesc: "길이, 무게, 넓이, 부피, 온도 등 다양한 단위를 상호 교환합니다.",
                 back: "← 돌아가기", tCountTitle: "✍️ 실시간 글자수 세기", lblSpaceInc: "공백 포함", lblSpaceExc: "공백 제외",
                 tDdayTitle: "📅 디데이 계산기", ddayDefault: "날짜를 고르면 디데이가 나타나요.", tPickTitle: "🎰 무작위 랜덤 추첨기", btnPick: "🎯 추첨하기", pickDefault: "최종 낙점될 주인공은 누구일까요?",
                 bTitle: "내가 찾는 도구가 없나요?", bDesc: "필요한 기능이 있다면 편하게 알려주세요.", bBtn: "의견 내기",
@@ -369,19 +416,20 @@
                 pwLen: "암호 길이: ", pwU: "대문자 포함 (A-Z)", pwN: "숫자 포함 (0-9)", pwS: "특수문자 포함 (!@#)", pwBtn: "비밀번호 생성", pwCopy: "복사", pwCopied: "📋 완료",
                 swStart: "시작", swStop: "정지", swReset: "리셋",
                 cat_length: "길이 변환 (Length)", cat_weight: "무게 변환 (Weight)", cat_area: "넓이 변환 (Area)", cat_volume: "부피 변환 (Volume)", cat_temp: "온도 변환 (Temperature)",
-                alertEmpty: "항목을 기입해 주세요."
+                alertEmpty: "항목을 기입해 주세요.",
+                toastSuccess: "의견이 성공적으로 접수되었습니다. 감사합니다!"
             },
             en: {
                 themeDark: "🌙 Dark Mode", themeLight: "☀️ Light Mode",
                 mainTitle: "What do you need today?", mainSub: "Handle everyday repetitive utility checks easily in one location.",
-                calcTitle: "Calculator", calcDesc: "Flawless computations with a highly responsive custom layout",
-                countTitle: "Word Counter", countDesc: "Track character metrics with or without blank spaces",
-                ddayTitle: "D-Day Tracker", ddayDesc: "Never miss your precious milestones and upcoming events",
-                pickTitle: "Random Picker", pickDesc: "Settle choices and decisions within just 3 seconds",
-                bmiTitle: "BMI Calculator", bmiDesc: "Check Body Mass Index and health status easily",
-                pwTitle: "Password Generator", pwDesc: "Generate high-security passwords with a single click",
-                stopTitle: "Stopwatch", stopDesc: "Track time splits precisely down to 0.01 seconds",
-                unitTitle: "Unit Converter", unitDesc: "Seamless conversion for lengths and mass units",
+                calcTitle: "Calculator", calcDesc: "Provides reliable arithmetic and decimal calculations.",
+                countTitle: "Word Counter", countDesc: "Counts the number of characters with or without spaces.",
+                ddayTitle: "D-Day Tracker", ddayDesc: "Calculates remaining or elapsed days based on a target date.",
+                pickTitle: "Random Picker", pickDesc: "Randomly extracts items fairly from a provided list.",
+                bmiTitle: "BMI Calculator", bmiDesc: "Measures body mass index based on height and weight.",
+                pwTitle: "Password Generator", pwDesc: "Generates secure random passwords based on user preferences.",
+                stopTitle: "Stopwatch", stopDesc: "Performs precise time measurement down to 0.01 seconds.",
+                unitTitle: "Unit Converter", unitDesc: "Converts various units including length, mass, and temperature.",
                 back: "← Back Home", tCountTitle: "✍️ Live Character Counter", lblSpaceInc: "With Spaces", lblSpaceExc: "No Spaces",
                 tDdayTitle: "📅 D-Day Tracker", ddayDefault: "Select a target date to begin.", tPickTitle: "🎰 Random Option Picker", btnPick: "🎯 Pick One", pickDefault: "Who will be the lucky winner?",
                 bTitle: "Missing something?", bDesc: "Tell us what feature you want anytime.", bBtn: "Feedback",
@@ -389,59 +437,62 @@
                 pwLen: "Length: ", pwU: "Uppercase (A-Z)", pwN: "Numbers (0-9)", pwS: "Symbols (!@#)", pwBtn: "Generate", pwCopy: "Copy", pwCopied: "📋 Done",
                 swStart: "Start", swStop: "Stop", swReset: "Reset",
                 cat_length: "Length Converter", cat_weight: "Weight Converter", cat_area: "Area Converter", cat_volume: "Volume Converter", cat_temp: "Temperature Converter",
-                alertEmpty: "Please enter items."
+                alertEmpty: "Please enter items.",
+                toastSuccess: "Your feedback has been successfully submitted. Thank you!"
             },
             ja: {
                 themeDark: "🌙 ダーク", themeLight: "☀️ ライト",
                 mainTitle: "今日はどのツールを使いますか？", mainSub: "毎日の繰り返しの確認作業を、一箇所で素早く解決します。",
-                calcTitle: "計算機", calcDesc: "複雑한 계산도 쾌적한 조작감으로 완벽하게 처리",
-                countTitle: "文字数カウント", countDesc: "リアルタイムで空白を含む・除く文字数を算出",
-                ddayTitle: "D-Day計測", ddayDesc: "大切な記念日や試験スケジュールを忘れずに管理",
-                pickTitle: "ランダム抽選", pickDesc: "メニュー選びや順番の悩みを3秒で解決します",
-                bmiTitle: "BMI計算機", bmiDesc: "身長と体重に合わせた健康状態의 확인",
-                pwTitle: "パスワード生成", pwDesc: "強力で安全なパスワードをワンクリックで発行",
-                stopTitle: "ストップウォッチ", stopDesc: "0.01秒まで精密に計測できるシンプルなタイマー",
-                unitTitle: "単位変換器", unitDesc: "長さや重量など、ややこしい単位換算を一覧化",
+                calcTitle: "計算機", calcDesc: "四則演算および小数点計算を安定してサポートします。",
+                countTitle: "文字수カウント", countDesc: "入力されたテキストの空白を含む・除く文字数を算出します。",
+                ddayTitle: "D-Day計測", ddayDesc: "指定した基準日からの残り日数や経過日数を計算します。",
+                pickTitle: "ランダム抽選", pickDesc: "入力されたリストからランダムに項目を公正に抽出します。",
+                bmiTitle: "BMI計算機", bmiDesc: "身長と体重データに基づいて体格指数を測定します。",
+                pwTitle: "パスワード生成", pwDesc: "ユーザー設定のルールに従って安全なランダム暗号を生成します。",
+                stopTitle: "ストップウォッチ", stopDesc: "0.01秒単位の精密な時間計測機能を実行します。",
+                unitTitle: "単位変換器", unitDesc: "長さ、重量、面積、体積、温度などの単位を相互換算します。",
                 back: "← 戻る", tCountTitle: "✍️ 文字数カウンター", lblSpaceInc: "空白含む", lblSpaceExc: "空白除く",
                 tDdayTitle: "📅 D-Day計算", ddayDefault: "日付を選択するとカウントが始まります。", tPickTitle: "🎰 ランダム抽選機", btnPick: "🎯 抽選する", pickDefault: "当選者は誰でしょうか？",
-                bTitle: "必要なツールがないですか？", bDesc: "欲しい機能があれば、いつでもお気軽にお知らせください。", bBtn: "フィードバック",
-                bmiH: "身長 (cm)", bmiW: "体重 (kg)", bmiBtn: "BMI計算", bmiDefault: "数値を入力してください。",
+                bTitle: "必要なツールがないですか？", bDesc: "欲しい機能があれば、いつでもお気軽にお知らせください。", bBtn: "送信する",
+                bmiH: "身長 (cm)", bmiW: "体重 (kg)", bmiBtn: "BMI計算", bmiDefault: "数치를 입력해주세요.",
                 pwLen: "長さ: ", pwU: "大文字含む (A-Z)", pwN: "数字含む (0-9)", pwS: "記号含む (!@#)", pwBtn: "生成する", pwCopy: "コピー", pwCopied: "📋 完了",
                 swStart: "スタート", swStop: "ストップ", swReset: "リセット",
                 cat_length: "長さ変換", cat_weight: "重量変換", cat_area: "面積変換", cat_volume: "体積変換", cat_temp: "温度変換",
-                alertEmpty: "項目を入力してください。"
+                alertEmpty: "項目を入力してください。",
+                toastSuccess: "ご意見が正常に届きました。ありがとうございます！"
             },
             zh: {
                 themeDark: "🌙 暗黑模式", themeLight: "☀️ 明亮模式",
-                mainTitle: "今天需要什么工具？", mainSub: "在这里一站式高效处理每日重复的繁琐琐事。",
-                calcTitle: "计算器", calcDesc: "流畅顺滑的触控体验，轻松完成复杂运算",
-                countTitle: "字数统计", countDesc: "实时在线分析统计包含或不含空格的字数",
-                ddayTitle: "倒计时器", ddayDesc: "记录并跟踪您珍贵的纪念日或考试倒计时",
-                pickTitle: "随机抽签", pickDesc: "三秒钟之内迅速帮你解决选择困难症",
-                bmiTitle: "BMI计算器", bmiDesc: "输入身高体重快速评估个人身体健康状况",
-                pwTitle: "密码生成器", pwDesc: "一键瞬间定制高强度、难以破解的安全密码",
-                stopTitle: "秒表计时", stopDesc: "高精度毫秒级计时，支持多场景时间追踪",
-                unitTitle: "单位换算", unitDesc: "长度、重量等日常高频使用单位一键转换",
+                mainTitle: "今天需要什么工具？", mainSub: "在这里一站式高效处理每日重复의 繁琐琐事。",
+                calcTitle: "计算器", calcDesc: "稳定支持基础的四则运算和高精度的浮点数算法。",
+                countTitle: "字数统计", countDesc: "实时在线统计并提供包含或不含空格的精确字数指标。",
+                ddayTitle: "倒计时器", ddayDesc: "基于指定的日期精确运算剩余或已过去的天数。",
+                pickTitle: "随机抽签", pickDesc: "在您提供的项目列表中进行客观公平的无规抽取。",
+                bmiTitle: "BMI计算器", bmiDesc: "基于身高与体重数据提供科学的体质指数测量。",
+                pwTitle: "密码生成器", pwDesc: "根据定制的规则条件一键瞬间为您定制安全的高强密码。",
+                stopTitle: "秒表计时", stopDesc: "执行高精度的毫秒级计时，满足各种时间追踪场景。",
+                unitTitle: "单位换算", unitDesc: "提供长度、重量、面积、体积以及温度的跨维度转换。",
                 back: "← 返回主页", tCountTitle: "✍️ 字数实时统计", lblSpaceInc: "包含空格", lblSpaceExc: "不含空格",
                 tDdayTitle: "📅 倒计时日历", ddayDefault: "请选择目标日期查看结果。", tPickTitle: "🎰 随机幸运抽签", btnPick: "🎯 开始抽签", pickDefault: "最终花落谁家？",
-                bTitle: "找不到心仪的工具？", bDesc: "如果您需要任何新功能，请随时联系并告知我们。", bBtn: "提交反馈",
+                bTitle: "找不到心仪의 工具？", bDesc: "如果您需要任何新功能，请随时联系并告知我们。", bBtn: "提交反馈",
                 bmiH: "身高 (cm)", bmiW: "体重 (kg)", bmiBtn: "计算体质指数", bmiDefault: "请完整填写基础身材数据。",
                 pwLen: "密码长度: ", pwU: "包含大写 (A-Z)", pwN: "包含数字 (0-9)", pwS: "包含符号 (!@#)", pwBtn: "立即生成", pwCopy: "复制", pwCopied: "📋 成功",
                 swStart: "开始", swStop: "暂停", swReset: "重置",
                 cat_length: "长度换算", cat_weight: "重量换算", cat_area: "面积换算", cat_volume: "体积换算", cat_temp: "温度换算",
-                alertEmpty: "请输入内容。"
+                alertEmpty: "请输入内容。",
+                toastSuccess: "意见已成功提交，非常感谢您的反馈！"
             },
             es: {
                 themeDark: "🌙 Oscuro", themeLight: "☀️ Claro",
                 mainTitle: "¿Qué herramienta necesitas hoy?", mainSub: "Resuelve tus tareas cotidianas repetitivas en un solo lugar.",
-                calcTitle: "Calculadora", calcDesc: "Cálculos perfectos con una respuesta táctil óptima",
-                countTitle: "Contador de Texto", countDesc: "Mide caracteres en tiempo real con o sin espacios",
-                ddayTitle: "Contador D-Day", ddayDesc: "Sigue tus fechas especiales y exámenes para no olvidarlos",
-                pickTitle: "Sorteo Aleatorio", pickDesc: "Toma decisiones o elige menús en solo 3 segundos",
-                bmiTitle: "Calculadora IMC", bmiDesc: "Mide tu Índice de Masa Corporal y estado físico",
-                pwTitle: "Generador de Claves", pwDesc: "Crea contraseñas seguras de nivel militar con un clic",
-                stopTitle: "Cronómetro", stopDesc: "Seguimiento preciso del tiempo hasta las centésimas",
-                unitTitle: "Conversor de Unidades", unitDesc: "Conversión de longitud y masa sin complicaciones",
+                calcTitle: "Calculadora", calcDesc: "Ofrece funciones estables de aritmética básica y cálculo decimal.",
+                countTitle: "Contador de Texto", countDesc: "Mide con precisión caracteres en tiempo real con o sin espacios.",
+                ddayTitle: "Contador D-Day", ddayDesc: "Calcula los días restantes o transcurridos respecto a una fecha.",
+                pickTitle: "Sorteo Aleatorio", pickDesc: "Extrae de forma justa y aleatoria un elemento de la lista.",
+                bmiTitle: "Calculadora IMC", bmiDesc: "Mide el Índice de Masa Corporal según la altura y peso dados.",
+                pwTitle: "Generador de Claves", pwDesc: "Crea claves aleatorias seguras bajo las reglas del usuario.",
+                stopTitle: "Cronómetro", stopDesc: "Realiza un seguimiento del tiempo preciso hasta las centésimas.",
+                unitTitle: "Conversor de Unidades", unitDesc: "Convierte unidades fundamentales de longitud, masa, área y más.",
                 back: "← Volver", tCountTitle: "✍️ Contador de Caracteres", lblSpaceInc: "Con Espacios", lblSpaceExc: "Sin Espacios",
                 tDdayTitle: "📅 Rastreador de D-Day", ddayDefault: "Elige una fecha para ver el cálculo.", tPickTitle: "🎰 Sorteo de Opciones", btnPick: "🎯 Sortear", pickDefault: "¿Quién será el afortunado ganador?",
                 bTitle: "¿No encuentras tu herramienta?", bDesc: "Si necesitas otra función, dinos y la crearemos rápido.", bBtn: "Sugerencias",
@@ -449,21 +500,49 @@
                 pwLen: "Longitud: ", pwU: "Mayúsculas (A-Z)", pwN: "Números (0-9)", pwS: "Símbolos (!@#)", pwBtn: "Generar", pwCopy: "Copiar", pwCopied: "📋 Listo",
                 swStart: "Iniciar", swStop: "Parar", swReset: "Reiniciar",
                 cat_length: "Conversor de Longitud", cat_weight: "Conversor de Peso", cat_area: "Conversor de Área", cat_volume: "Conversor de Volumen", cat_temp: "Conversor de Temperatura",
-                alertEmpty: "Por favor complete."
+                alertEmpty: "Por favor complete.",
+                toastSuccess: "¡Sugerencia recibida con éxito. Gracias!"
             }
         };
 
-        const tips = {
-            ko: ["💡 팁: 추첨 완료 시 연출되는 화면 가장자리 이펙트는 네이티브 그래픽 가속을 사용해요.", "💡 팁: 단위 변환기는 대형 카테고리 5가지와 미세 척도 환산을 완벽 조율해요."],
-            en: ["💡 Tip: The edge glow effect utilizes optimized GPU acceleration metrics.", "💡 Tip: The unit system covers 5 massive categories including historical Asian units."],
-            ja: ["💡 ヒント：抽選完了時の画面エッジ演出は、GPUを稼働させて滑らかに発광します。"],
-            zh: ["💡 提示：抽签结束时触发的全屏边框流光特效已做了高刷新率适配。"],
-            es: ["💡 Consejo: El destello dorado del borde utiliza aceleración nativa por hardware."]
+        /* 🎬 5. 수많은 유용한 다국어 팁 데이터베이스 매트릭스 */
+        const tipsDatabase = {
+            ko: [
+                "💡 팁: 계산기 화면이 꽉 차면 손가락으로 밀어 좌우 스크롤을 할 수 있습니다.",
+                "💡 팁: 단위 변환기에서는 한국 전통 척도 단위인 '돈'과 '냥'도 지원합니다.",
+                "💡 팁: 비밀번호 생성 시 특수문자를 포함하면 해킹 위험도가 기하급수적으로 낮아집니다.",
+                "💡 팁: 추첨할 항목이 많아지면 로지텍 하드웨어 연출 강도가 더 증폭됩니다.",
+                "💡 팁: 글자수 세기 기능은 텍스트를 입력하는 즉시 로컬 메모리 상에서 실시간 집계됩니다.",
+                "💡 팁: 스톱워치는 브라우저 백그라운드 상태에서도 정밀 계산 시스템이 유지됩니다."
+            ],
+            en: [
+                "💡 Tip: You can scroll left or right on the calculator display if the formula gets too long.",
+                "💡 Tip: Including multiple character classes increases password security exponentially.",
+                "💡 Tip: The random picker amplifies its light matrix sequence as more lines are input.",
+                "💡 Tip: Our unit framework perfectly supports complex structural volume and temperature matrices."
+            ],
+            ja: [
+                "💡 ヒント：計算機のディスプレイは、数式が長くなると左右にスクロールできます。",
+                "💡 ヒント：抽選する項目が多くなるほど、ネオンライトの回転速度とエフェクト密度が高まります。"
+            ],
+            zh: ["💡 提示：当计算器的公式过程过长时，您可以直接在显示屏区域左右横向滚动。"],
+            es: ["💡 Consejo: El generador de claves ofrece cifrado aleatorio nativo basado en la CPU de tu navegador."]
         };
 
-        /* 🎬 4. 즉시 지정 다국어 변경 코어 프로세서 */
+        /* 🎬 1. 커스텀 언어 드롭다운 트랙 제어 */
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('lang-dropdown').classList.toggle('show');
+        }
+        
+        document.addEventListener('click', () => {
+            document.getElementById('lang-dropdown').classList.remove('show');
+        });
+
         function changeLanguage(langCode) {
             currentLang = langCode;
+            const flagMap = { ko: '🇰🇷 KO ▼', en: '🇺🇸 EN ▼', ja: '🇯🇵 JA ▼', zh: '🇨🇳 ZH ▼', es: '🇪🇸 ES ▼' };
+            document.getElementById('lang-btn').textContent = flagMap[langCode];
             updateLanguageUI();
         }
 
@@ -488,7 +567,9 @@
             document.getElementById('t-dday-title').textContent = l.tDdayTitle;
             if(!document.getElementById('target-date').value) document.getElementById('dday-result').textContent = l.ddayDefault;
             document.getElementById('t-pick-title').textContent = l.tPickTitle;
-            if(document.getElementById('picker-result').textContent.match(/(주인공|winner|当選者|花落谁家|ganador)/)) document.getElementById('picker-result').textContent = l.pickDefault;
+            if(document.getElementById('picker-result').innerText.match(/(주인공|winner|当選者|花落谁家|ganador|최종|Who|当選)/)) {
+                document.getElementById('picker-text-node').textContent = l.pickDefault;
+            }
             
             document.getElementById('lbl-bmi-h').textContent = l.bmiH; document.getElementById('lbl-bmi-w').textContent = l.bmiW; document.getElementById('btn-bmi-calc').textContent = l.bmiBtn;
             document.getElementById('lbl-pw-len').firstChild.textContent = l.pwLen; document.getElementById('chk-pw-u').textContent = l.pwU; document.getElementById('chk-pw-n').textContent = l.pwN; document.getElementById('chk-pw-s').textContent = l.pwS; document.getElementById('btn-pw-gen').textContent = l.pwBtn;
@@ -498,13 +579,26 @@
             
             document.getElementById('banner-title').textContent = l.bTitle; document.getElementById('banner-desc').textContent = l.bDesc; document.getElementById('banner-btn').textContent = l.bBtn;
             
-            setupCategoryStrings(); rotateTip();
+            setupCategoryStrings(); triggerDynamicTip();
         }
 
-        function rotateTip() { const list = tips[currentLang] || tips['ko']; document.getElementById('tip-display').textContent = list[Math.floor(Math.random() * list.length)]; }
+        /* 🎬 5. 새로고침 및 액션 이용 완료/이동 시 부드러운 페이드 전환식 다이내믹 가변 팁 엔진 */
+        function triggerDynamicTip() {
+            const displayBox = document.getElementById('tip-display');
+            displayBox.style.opacity = '0';
+            displayBox.style.transform = 'translateY(5px)';
+            
+            setTimeout(() => {
+                const pool = tipsDatabase[currentLang] || tipsDatabase['ko'];
+                displayBox.textContent = pool[Math.floor(Math.random() * pool.length)];
+                displayBox.style.opacity = '1';
+                displayBox.style.transform = 'translateY(0)';
+            }, 200);
+        }
+
         function toggleTheme() { document.body.classList.toggle('dark'); updateLanguageUI(); }
 
-        /* 🎬 가속 라우터 제어 커스텀 모듈 */
+        /* 가속 라우터 제어 모듈 */
         const homeView = document.getElementById('home-view');
         const workspaceView = document.getElementById('workspace-view');
         const toolContents = document.querySelectorAll('.tool-content');
@@ -517,19 +611,43 @@
                 if(callback) callback();
                 requestAnimationFrame(() => { setTimeout(() => { toView.classList.add('visible'); }, 20); });
             }, 250);
+            // 🎬 5. 기능 이동 인터랙션 감지 시 팁 자동 로테이션 가속화
+            triggerDynamicTip();
         }
 
         function showHome() { switchView(workspaceView, homeView, () => { toolContents.forEach(t => t.style.display = 'none'); }); }
         function openTool(id) { switchView(homeView, workspaceView, () => { document.getElementById(id).style.display = 'block'; if(id==='calculator-tool') { renderDisplay(fullExpression); autoScrollToRight(); } }); }
 
-        /* [1] 계산기 */
+        /* 🎬 2. 의견 내기 먹통 버그 수정 및 프리미엄 토스트 연동 모듈 */
+        function submitFeedback() {
+            const toast = document.getElementById('toast-alert');
+            toast.textContent = langData[currentLang].toastSuccess;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        /* [1] 계산기 (🎬 3. 입력 피드백 애니메이션 이식 파트) */
         const display = document.getElementById('result'); const container = document.getElementById('display-container');
         let fullExpression = '0';
         function autoScrollToRight() { if(container) requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; }); }
+        
+        function animateDisplayPop() {
+            display.classList.remove('pop-anim');
+            void display.offsetWidth; // 브라우저가 애니메이션을 다시 인지하도록 강제 트리거
+            display.classList.add('pop-anim');
+            setTimeout(() => display.classList.remove('pop-anim'), 80);
+        }
+
+        function appendValue(value) { 
+            if (fullExpression === '0' && value !== '.') fullExpression = value; 
+            else fullExpression += value; 
+            renderDisplay(fullExpression); 
+            autoScrollToRight(); 
+            animateDisplayPop(); 
+        }
+        function clearDisplay() { fullExpression = '0'; renderDisplay(fullExpression); autoScrollToRight(); animateDisplayPop(); }
         function renderDisplay(text) { display.textContent = text.replace(/\*/g, '×').replace(/\//g, '÷'); }
-        function appendValue(value) { if (fullExpression === '0' && value !== '.') fullExpression = value; else fullExpression += value; renderDisplay(fullExpression); autoScrollToRight(); }
-        function clearDisplay() { fullExpression = '0'; renderDisplay(fullExpression); autoScrollToRight(); }
-        function calculate() { try { if (fullExpression) { let result = eval(fullExpression); if (!isNaN(result) && Math.abs(result) >= 1e12) fullExpression = BigInt(Math.floor(result)).toString(); else if (result % 1 !== 0) fullExpression = parseFloat(result.toFixed(8)).toString(); else fullExpression = result.toString(); renderDisplay(fullExpression); } } catch (e) { fullExpression = '0'; display.textContent = 'Error'; setTimeout(clearDisplay, 1200); } autoScrollToRight(); }
+        function calculate() { try { if (fullExpression) { let result = eval(fullExpression); if (!isNaN(result) && Math.abs(result) >= 1e12) fullExpression = BigInt(Math.floor(result)).toString(); else if (result % 1 !== 0) fullExpression = parseFloat(result.toFixed(8)).toString(); else fullExpression = result.toString(); renderDisplay(fullExpression); animateDisplayPop(); triggerDynamicTip(); } } catch (e) { fullExpression = '0'; display.textContent = 'Error'; setTimeout(clearDisplay, 1200); } autoScrollToRight(); }
 
         /* [2] 글자수 세기 */
         function countText() { const t = document.getElementById('counter-input').value; document.getElementById('char-with-space').textContent = t.length; document.getElementById('char-without-space').textContent = t.replace(/\s/g, "").length; }
@@ -541,30 +659,41 @@
             const diff = Math.ceil((target.getTime() - t.getTime()) / (1000 * 60 * 60 * 24));
             const box = document.getElementById('dday-result');
             box.innerHTML = diff === 0 ? "🎉 D-Day Day" : (diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`);
+            triggerDynamicTip();
         }
 
-        /* 🎬 [4] 랜덤 추천 기능: 7초 고정형 연출 슬롯머신 및 에지 이펙트 */
+        /* 🎬 7. 로지텍 G HUB 기반 테크니컬 RGB 슬롯 휠 엔진 및 데이터 확장 스케일 가변형 모듈 */
         let pickerRunning = false;
         function pickRandom() {
             if(pickerRunning) return;
             const text = document.getElementById('picker-items').value.trim();
-            const box = document.getElementById('picker-result');
+            const textNode = document.getElementById('picker-text-node');
             const btn = document.getElementById('btn-pick');
+            const neonBorder = document.getElementById('logitech-border');
 
             if(!text) { alert(langData[currentLang].alertEmpty); return; }
             let items = text.split(/,|\n/).map(i => i.trim()).filter(i => i !== "");
-            if(items.length < 2) { box.textContent = "⚠️ (>= 2 items)"; return; }
+            if(items.length < 2) { textNode.textContent = "⚠️ (>= 2 items)"; return; }
 
             pickerRunning = true;
             btn.disabled = true;
 
-            const totalDuration = 7000; // 🎯 정확히 7초 고정 연출 작용
-            const tickInterval = 60; // 롤링 주기 (ms)
+            // 로지텍 G HUB 스타일의 기하급수 풍부도 측정: 아이템 개수가 많을수록 더 밀도 높은 파괴력 연출 분기
+            const isHighDensity = items.length >= 6;
+            if (isHighDensity) {
+                neonBorder.classList.add('logitech-active-high');
+            } else {
+                neonBorder.classList.add('logitech-active-low');
+            }
+
+            // 고정 연출 시간을 더 깊고 가치 있게 몰입시키기 위해 기존 7초에서 9.5초(9500ms)로 최적 상향 연장
+            const totalDuration = 9500; 
+            const tickInterval = isHighDensity ? 40 : 65; // 고밀도 시 슬롯 회전 속도 극대화 가속
             let elapsed = 0;
 
             let intervalTimer = setInterval(() => {
                 const temp = items[Math.floor(Math.random() * items.length)];
-                box.innerHTML = `🎲 <span style="color:var(--text-sub);">Rolling... [ ${temp} ]</span>`;
+                textNode.innerHTML = `⚙️ <span style="color:var(--text-sub); font-family: monospace;">G-MATRIX ROLLING... [ ${temp} ]</span>`;
                 elapsed += tickInterval;
             }, tickInterval);
 
@@ -572,16 +701,14 @@
                 clearInterval(intervalTimer);
                 pickerRunning = false;
                 btn.disabled = false;
+                
+                // 로지텍 네온 테두리 해제
+                neonBorder.classList.remove('logitech-active-low', 'logitech-active-high');
 
-                // 최종 매핑 연산 결과 도출
                 const finalChoice = items[Math.floor(Math.random() * items.length)];
-                box.innerHTML = `🎯 <span style='color: #db2777; font-size: 1.35rem; font-weight:800;'>${finalChoice}</span>`;
-
-                // 🎬 에지 알림 트래킹 발동
-                const edge = document.getElementById('edge-effect-layer');
-                edge.classList.add('trigger-glow');
-                setTimeout(() => { edge.classList.remove('trigger-glow'); }, 2200);
-
+                textNode.innerHTML = `🎯 <span style='color: #db2777; font-size: 1.35rem; font-weight:800; text-shadow: 0 0 10px rgba(219,39,119,0.2);'>${finalChoice}</span>`;
+                
+                triggerDynamicTip();
             }, totalDuration);
         }
 
@@ -593,9 +720,10 @@
             if(!h || !w) { box.textContent = "⚠️ Check Input"; return; }
             const bmi = (w / (h * h)).toFixed(1);
             box.innerHTML = `BMI: <span style='color:#2563eb; font-size:1.3rem;'>${bmi}</span>`;
+            triggerDynamicTip();
         }
 
-        /* 🎬 [6] 비밀번호 생성기: 완벽히 격리된 독립 복사 기능 버튼 */
+        /* [6] 비밀번호 생성기 */
         function generatePassword() {
             const len = parseInt(document.getElementById('pw-length').value);
             const upper = document.getElementById('pw-upper').checked;
@@ -610,6 +738,7 @@
             let pw = "";
             for (let i = 0; i < len; i++) { pw += chars.charAt(Math.floor(Math.random() * chars.length)); }
             document.getElementById('password-result').value = pw;
+            triggerDynamicTip();
         }
 
         function copyPassword() {
@@ -640,6 +769,7 @@
             } else {
                 clearInterval(swInterval); swInterval = null;
                 btn.textContent = langData[currentLang].swStart; btn.style.background = "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)";
+                triggerDynamicTip();
             }
         }
         function resetStopwatch() {
@@ -649,7 +779,7 @@
             document.getElementById('btn-sw-start').style.background = "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)";
         }
 
-        /* 🎬 [8] 단위 변환기: 다차원 확장 매트릭스 구현 데이터셋 */
+        /* [8] 단위 변환기 */
         const unitDatabase = {
             length: {
                 units: ['mm', 'cm', 'm', 'km', 'inch', 'ft', 'yd'],
@@ -667,9 +797,7 @@
                 units: ['mL', 'L', 'gal', 'cup', 'fl oz'],
                 rates: { mL: 1, L: 1000, gal: 3785.41, cup: 200, 'fl oz': 29.5735 }
             },
-            temp: {
-                units: ['°C', '°F', 'K']
-            }
+            temp: { units: ['°C', '°F', 'K'] }
         };
 
         function setupCategoryStrings() {
@@ -691,9 +819,7 @@
             const srcSelect = document.getElementById('unit-select-src');
             const destSelect = document.getElementById('unit-select-dest');
 
-            srcSelect.innerHTML = '';
-            destSelect.innerHTML = '';
-
+            srcSelect.innerHTML = ''; destSelect.innerHTML = '';
             unitDatabase[category].units.forEach(u => {
                 srcSelect.appendChild(new Option(u, u));
                 destSelect.appendChild(new Option(u, u));
@@ -707,18 +833,15 @@
             const category = document.getElementById('unit-category').value;
             const srcUnit = document.getElementById('unit-select-src').value;
             const destUnit = document.getElementById('unit-select-dest').value;
-            
             const srcInput = document.getElementById('unit-val-src');
             const destInput = document.getElementById('unit-val-dest');
 
             let inputVal = triggerId === 1 ? parseFloat(srcInput.value) : parseFloat(destInput.value);
             if(isNaN(inputVal)) { if(triggerId===1) destInput.value=""; else srcInput.value=""; return; }
 
-            // 온도 변환 로직 커스텀 분기 처리
             if(category === 'temp') {
                 let fromUnit = triggerId === 1 ? srcUnit : destUnit;
                 let toUnit = triggerId === 1 ? destUnit : srcUnit;
-                
                 let celsius = 0;
                 if(fromUnit === '°C') celsius = inputVal;
                 else if(fromUnit === '°F') celsius = (inputVal - 32) * 5 / 9;
@@ -734,7 +857,6 @@
                 return;
             }
 
-            // 일반 결합 단위 변환 프로세스
             const rates = unitDatabase[category].rates;
             if(triggerId === 1) {
                 let baseVal = inputVal * rates[srcUnit];
@@ -745,7 +867,7 @@
             }
         }
 
-        // 초기 앱 마운트 핸들러
+        // 초기 앱 마운트 설정
         homeView.classList.add('active');
         setTimeout(() => { homeView.classList.add('visible'); }, 50);
         setupCategoryStrings();
