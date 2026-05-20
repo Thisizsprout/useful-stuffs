@@ -1,1 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UtiliTools - 일상의 모든 도구</title>
+    <style>
+        /* 🎨 시중 프리미엄 무료 템플릿 스타일 (Modern Slate UI) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
 
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #1e293b; /* Slate 800 */
+            padding: 20px 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6; /* 메인 테마 블루 */
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex: 1;
+        }
+
+        /* 1. 시작 화면 & 도구 선택 메뉴 (Grid Dashboard) */
+        .dashboard-intro {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-intro h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-intro p {
+            color: #94a3b8;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background-color: #1e293b;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2);
+        }
+
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .tool-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .tool-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        /* 2. 도구 실행 영역 제어 */
+        .workspace {
+            display: none; /* 기본적으로는 숨김 */
+            background-color: #1e293b;
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid #334155;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .back-btn {
+            background-color: #334155;
+            color: #f8fafc;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 25px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: #475569;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------------------------------------------------- */
+        /* [도구 1] 이전에 커스텀한 최종 계산기 코드 그대로 탑재 */
+        /* ---------------------------------------------------- */
+        .calc-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .calculator {
+            background-color: #1e293b;
+            width: 340px;
+        }
+        .display-container {
+            width: 100%;
+            height: 90px;
+            background-color: #0f172a;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            overflow-x: auto;          
+            overflow-y: hidden;        
+            cursor: grab; 
+            scroll-behavior: smooth;
+        }
+        .display-container:active { cursor: grabbing; }
+        .display-container::-webkit-scrollbar { display: none; }
+        .display {
+            color: #f8fafc;
+            font-size: 2.3rem;
+            white-space: nowrap; 
+            display: block;
+            width: 100%;
+            text-align: right;
+            transition: all 0.1s ease;
+        }
+        .push-animation {
+            animation: textPush 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+        }
+        @keyframes textPush {
+            0% { transform: scale(0.98) translateX(4px); filter: brightness(1.3); }
+            100% { transform: scale(1) translateX(0); filter: brightness(1); }
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .buttons button {
+            padding: 20px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #334155;
+            color: #f8fafc;
+            user-select: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .buttons button:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.2);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .buttons button:active {
+            transform: translateY(1px) scale(0.95);
+            filter: brightness(1.4);
+            transition: all 0.05s ease;
+        }
+        .buttons button.operator { background-color: #3b82f6; color: white; }
+        .buttons button.clear { background-color: #ef4444; color: white; }
+        .buttons button.equal { background-color: #10b981; color: white; grid-column: span 2; }
+
+        /* ---------------------------------------------------- */
+        /* [도구 2, 3, 4] 추가 도구 공통 UI 공사 */
+        /* ---------------------------------------------------- */
+        .tool-title {
+            font-size: 1.7rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        textarea, input[type="text"], input[type="date"] {
+            width: 100%;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            color: white;
+            padding: 15px;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        textarea:focus, input:focus { border-color: #3b82f6; }
+        
+        /* 글자수 세기 결과 창 */
+        .counter-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .counter-box {
+            background-color: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        .counter-box span {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-top: 5px;
+        }
+
+        /* 디데이 & 추첨기 내부 UI 버튼 */
+        .action-btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .action-btn:hover { background-color: #2563eb; }
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #0f172a;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border: 1px dashed #334155;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 onclick="showHome()">⚙️ UtiliTools</h1>
+        <p style="color: #94a3b8;">v1.0.0</p>
+    </header>
+
+    <div class="container">
+        <!-- 🏠 [화면 1] 메인 대시보드 (도구 선택창) -->
+        <div id="home-view">
+            <div class="dashboard-intro">
+                <h2>어떤 도구가 필요하신가요?</h2>
+                <p>일상에서 자주 쓰는 유용한 기능들을 모았습니다.</p>
+            </div>
+            
+            <div class="tool-grid">
+                <div class="tool-card" onclick="openTool('calculator-tool')">
+                    <span class="tool-icon">🧮</span>
+                    <h3>스마트 계산기</h3>
+                    <p>쫀득한 타격감의 수식 입력 계산기</p>
+                </div>
+                <div class="tool-card" onclick="openTool('counter-tool')">
+                    <span class="tool-icon">✍️</span>
+                    <h3>글자수 세기</h3>
+                    <p>공백 포함/제외 글자 및 단어 분석</p>
+                </div>
+                <div class="tool-card" onclick="openTool('dday-tool')">
+                    <span class="tool-icon">📅</span>
+                    <h3>D-Day 계산기</h3>
+                    <p>중요한 시험, 기념일 날짜 카운트다운</p>
+                </div>
+                <div class="tool-card" onclick="openTool('picker-tool')">
+                    <span class="tool-icon">🎰</span>
+                    <h3>랜덤 추첨기</h3>
+                    <p>메뉴 고르기, 순번 정하기용 간편 뽑기</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🛠️ [화면 2] 도구 가동 워크스페이스 공간 -->
+        <div id="workspace-view" class="workspace">
+            <button class="back-btn" onclick="showHome()">← 메인으로 돌아가기</button>
+            
+            <!-- [도구 1] 계산기 본체 -->
+            <div id="calculator-tool" class="tool-content" style="display:none;">
+                <div class="calc-wrapper">
+                    <div class="calculator">
+                        <div class="display-container" id="display-container">
+                            <div class="display" id="result">0</div>
+                        </div>
+                        <div class="buttons">
+                            <button class="clear" onclick="clearDisplay()">C</button>
+                            <button class="operator" onclick="appendValue('/')">÷</button>
+                            <button class="operator" onclick="appendValue('*')">×</button>
+                            <button class="operator" onclick="appendValue('-')">-</button>
+                            
+                            <button onclick="appendValue('7')">7</button>
+                            <button onclick="appendValue('8')">8</button>
+                            <button onclick="appendValue('9')">9</button>
+                            <button class="operator" onclick="appendValue('+')">+</button>
+                            
+                            <button onclick="appendValue('4')">4</button>
+                            <button onclick="appendValue('5')">5</button>
+                            <button onclick="appendValue('6')">6</button>
+                            <button onclick="appendValue('.')">.</button>
+                            
+                            <button onclick="appendValue('1')">1</button>
+                            <button onclick="appendValue('2')">2</button>
+                            <button onclick="appendValue('3')">3</button>
+                            <button onclick="appendValue('0')">0</button>
+                            
+                            <button class="equal" onclick="calculate()">=</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [도구 2] 글자수 세기 본체 -->
+            <div id="counter-tool" class="tool-content" style="display:none;">
+                <div class="tool-title">✍️ 실시간 글자수 세기</div>
+                <textarea id="counter-input" rows="8" placeholder="분석할 텍스트를 입력하거나 붙여넣으세요..." oninput="countText()"></textarea>
+                <div class="counter-grid">
+                    <div class="counter-box">공백 포함<span id="char-with-space">0</span></div>
+                    <div class="counter-box">공백 제외<span id="char-without-space">0</span></div>
+                </div>
+            </div>
+
+            <!-- [도구 3] D-Day 계산기 본체 -->
+            <div id="dday-tool" class="tool-content" style="display:none;">
+                <div class="tool-title">📅 디데이 계산기</div>
+                <p style="margin-bottom: 10px; color: #94a3b8;">목표 날짜를 선택해 주세요.</p>
+                <input type="date" id="target-date" onchange="calculateDDay()">
+                <div class="result-box" id="dday-result">날짜를 선택하면 D-Day가 계산됩니다.</div>
+            </div>
+
+            <!-- [도구 4] 랜덤 추첨기 본체 -->
+            <div id="picker-tool" class="tool-content" style="display:none;">
+                <div class="tool-title">🎰 무작위 랜덤 추첨기</div>
+                <p style="margin-bottom: 10px; color: #94a3b8;">추첨할 항목들을 콤마(,)나 줄바꿈으로 구분해서 적어주세요.</p>
+                <textarea id="picker-items" rows="5" placeholder="예: 짜장면, 짬뽕, 볶음밥&#10;김철수, 이영희, 박민수"></textarea>
+                <button class="action-btn" onclick="pickRandom()">🎯 행운의 항목 추첨하기</button>
+                <div class="result-box" id="picker-result">과연 결과는...?</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ---------------------------------------------------- */
+        /* 🔄 [라우팅] 화면 전환 시스템 (조건 1 만족) */
+        /* ---------------------------------------------------- */
+        const homeView = document.getElementById('home-view');
+        const workspaceView = document.getElementById('workspace-view');
+        const toolContents = document.querySelectorAll('.tool-content');
+
+        function showHome() {
+            workspaceView.style.display = 'none';
+            homeView.style.display = 'block';
+            // 모든 도구 창 끄기
+            toolContents.forEach(tool => tool.style.display = 'none');
+        }
+
+        function openTool(toolId) {
+            homeView.style.display = 'none';
+            workspaceView.style.display = 'block';
+            
+            // 선택한 도구만 화면에 노출
+            toolContents.forEach(tool => tool.style.display = 'none');
+            document.getElementById(toolId).style.display = 'block';
+
+            // 계산기 켜질 때 스크롤 초기화 및 첫 렌더링 세팅
+            if(toolId === 'calculator-tool') {
+                renderDisplay(fullExpression);
+                autoScrollToRight();
+            }
+        }
+
+        /* ---------------------------------------------------- */
+        /* [도구 1 기능] 계산기 로직 (이전 최종 버전 유지) */
+        /* ---------------------------------------------------- */
+        const display = document.getElementById('result');
+        const container = document.getElementById('display-container');
+        let fullExpression = '0'; 
+
+        function autoScrollToRight() {
+            if(container) {
+                requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; });
+            }
+        }
+
+        function triggerAnimation() {
+            display.classList.remove('push-animation');
+            void display.offsetWidth; 
+            display.classList.add('push-animation');
+        }
+
+        function renderDisplay(text) {
+            let viewText = text.replace(/\*/g, '×').replace(/\//g, '÷');
+            display.textContent = viewText;
+            triggerAnimation(); 
+        }
+
+        function appendValue(value) {
+            if (fullExpression === '0' && value !== '.') fullExpression = value;
+            else fullExpression += value;
+            renderDisplay(fullExpression);
+            autoScrollToRight();
+        }
+
+        function clearDisplay() {
+            fullExpression = '0';
+            renderDisplay(fullExpression);
+            autoScrollToRight();
+        }
+
+        function backspace() {
+            if (fullExpression.length > 1) fullExpression = fullExpression.slice(0, -1);
+            else fullExpression = '0';
+            renderDisplay(fullExpression);
+            autoScrollToRight();
+        }
+
+        function calculate() {
+            try {
+                if (fullExpression) {
+                    let result = eval(fullExpression);
+                    if (!isNaN(result) && Math.abs(result) >= 1e12) {
+                        fullExpression = BigInt(Math.floor(result)).toString();
+                    } else if (result % 1 !== 0) {
+                        fullExpression = parseFloat(result.toFixed(8)).toString();
+                    } else {
+                        fullExpression = result.toString();
+                    }
+                    renderDisplay(fullExpression);
+                }
+            } catch (error) {
+                fullExpression = '0';
+                display.textContent = 'Error';
+                setTimeout(clearDisplay, 1500);
+            }
+            autoScrollToRight();
+        }
+
+        // 마우스 및 드래그 제어 (계산기 뷰 활성화용)
+        container.addEventListener('wheel', (evt) => { evt.preventDefault(); container.scrollLeft += evt.deltaY; });
+        let isDown = false, startX, scrollLeft;
+        container.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - container.offsetLeft; scrollLeft = container.scrollLeft; });
+        container.addEventListener('mouseleave', () => { isDown = false; });
+        container.addEventListener('mouseup', () => { isDown = false; });
+        container.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 1.5; 
+            container.scrollLeft = scrollLeft - walk;
+        });
+
+        // 글로벌 키보드 처리 (단, 계산기 모드이고 입력창 포커스가 아닐 때만 작동하도록 가드)
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('calculator-tool').style.display === 'none') return;
+            if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
+
+            const key = event.key;
+            if ((key >= '0' && key <= '9') || key === '.') appendValue(key);
+            else if (key === '+' || key === '-' || key === '*' || key === '/') appendValue(key);
+            else if (key === 'Enter' || key === '=') { event.preventDefault(); calculate(); }
+            else if (key === 'Backspace') backspace();
+            else if (key === 'Escape') clearDisplay();
+        });
+
+
+        /* ---------------------------------------------------- */
+        /* [도구 2 기능] 글자수 세기 로직 */
+        /* ---------------------------------------------------- */
+        function countText() {
+            const text = document.getElementById('counter-input').value;
+            const withSpace = text.length;
+            const withoutSpace = text.replace(/\s/g, "").length;
+
+            document.getElementById('char-with-space').textContent = withSpace;
+            document.getElementById('char-without-space').textContent = withoutSpace;
+        }
+
+        /* ---------------------------------------------------- */
+        /* [도구 3 기능] D-Day 계산기 로직 */
+        /* ---------------------------------------------------- */
+        function calculateDDay() {
+            const targetInput = document.getElementById('target-date').value;
+            if (!targetInput) return;
+
+            const today = new Date();
+            today.setHours(0,0,0,0); // 시각 편차 제거
+            
+            const target = new Date(targetInput);
+            target.setHours(0,0,0,0);
+
+            const diffTime = target.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const resultBox = document.getElementById('dday-result');
+
+            if (diffDays === 0) {
+                resultBox.innerHTML = "🎉 <span style='color: #ef4444;'>바로 오늘(D-Day)입니다!</span>";
+            } else if (diffDays > 0) {
+                resultBox.innerHTML = `목표일까지 <span style='color: #3b82f6;'>D-${diffDays}</span> 남았습니다.`;
+            } else {
+                resultBox.innerHTML = `지정일로부터 <span style='color: #94a3b8;'>D+${Math.abs(diffDays)}</span> 지났습니다.`;
+            }
+        }
+
+        /* ---------------------------------------------------- */
+        /* [도구 4 기능] 랜덤 추첨기 로직 */
+        /* ---------------------------------------------------- */
+        function pickRandom() {
+            const rawText = document.getElementById('picker-items').value.trim();
+            const resultBox = document.getElementById('picker-result');
+            
+            if(!rawText) {
+                resultBox.textContent = "⚠️ 추첨할 항목을 먼저 입력해 주세요!";
+                return;
+            }
+
+            // 콤마 혹은 줄바꿈 단위를 정규식으로 쪼개기
+            let items = rawText.split(/,|\n/).map(item => item.trim()).filter(item => item !== "");
+
+            if(items.length < 2) {
+                resultBox.textContent = "⚠️ 최소 2개 이상의 항목을 입력해야 추첨이 가능해요.";
+                return;
+            }
+
+            // 애니메이션 효과 연출 (슬롯머신 굴리듯 임시 텍스트 노출)
+            let count = 0;
+            const interval = setInterval(() => {
+                const randomTemp = items[Math.floor(Math.random() * items.length)];
+                resultBox.textContent = `🎲 돌리는 중... [ ${randomTemp} ]`;
+                count++;
+                
+                if(count > 10) {
+                    clearInterval(interval);
+                    // 최종 확정 뽑기
+                    const finalChoice = items[Math.floor(Math.random() * items.length)];
+                    resultBox.innerHTML = `🎯 당첨 결과: <span style='color: #10b981; font-size: 1.6rem;'>${finalChoice}</span>`;
+                }
+            }, 80);
+        }
+    </script>
+</body>
+</html>
