@@ -2,10 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UtiliTools</title>
     <style>
-        /* 🎨 CSS 변수를 활용한 라이트/다크 모드 완벽 동기화 */
+        /* 🎨 CSS 변수 환경 설정 */
         :root {
             --bg-main: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             --text-main: #1e293b;
@@ -16,7 +16,6 @@
             --border-color: rgba(255, 255, 255, 0.6);
             --shadow: rgba(15, 23, 42, 0.04);
             
-            /* 컴포넌트 전용 */
             --input-bg: #ffffff;
             --input-border: #cbd5e1;
             --calc-bg: rgba(248, 250, 252, 0.9);
@@ -36,7 +35,6 @@
             --border-color: rgba(255, 255, 255, 0.08);
             --shadow: rgba(0, 0, 0, 0.3);
             
-            /* 컴포넌트 전용 */
             --input-bg: #0f172a;
             --input-border: #334155;
             --calc-bg: #1e293b;
@@ -50,21 +48,23 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Pretendard', -apple-system, sans-serif;
-            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 푸르스름한 잔상 제거 */
         }
 
         body {
             background: var(--bg-main);
             color: var(--text-main);
             min-height: 100vh;
+            min-height: 100dvh; /* 🔥 모바일 주소창 대응 신형 뷰포트 단위 */
             display: flex;
             flex-direction: column;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* 그라데이션 오라 효과 */
+        /* 배경 조명 효과 */
         body::before {
             content: ''; position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw;
             background: radial-gradient(circle, var(--radial-1) 0%, rgba(255, 255, 255, 0) 70%); z-index: -1;
@@ -77,131 +77,157 @@
         header {
             background: var(--header-bg);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 15px 40px;
+            padding: 15px 24px;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border-color);
         }
 
         header h1 {
-            font-size: 1.4rem; font-weight: 800;
+            font-size: 1.35rem; font-weight: 800;
             background: linear-gradient(45deg, #2563eb, #db2777);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             cursor: pointer; letter-spacing: -0.5px;
         }
 
-        /* 🎛️ 상단 제어 컨트롤 존 (테마 & 언어) */
-        .controls {
-            display: flex; gap: 10px;
-        }
+        .controls { display: flex; gap: 8px; }
         .control-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 8px 14px; border-radius: 12px;
-            cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            display: flex; align-items: center; gap: 5px;
+            background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 8px 14px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            touch-action: manipulation;
         }
         .control-btn:hover { background: var(--card-hover); }
 
         .container {
-            max-width: 1000px; width: 100%; margin: 0 auto; padding: 40px 20px; flex: 1;
+            max-width: 1000px; width: 100%; margin: 0 auto; padding: 30px 20px; flex: 1;
         }
 
-        /* 🏠 메인 대시보드 */
-        .dashboard-intro { text-align: center; margin-bottom: 40px; }
-        .dashboard-intro h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
-        .dashboard-intro p { color: var(--text-sub); font-size: 1.05rem; font-weight: 500; }
+        /* 🏠 홈 대시보드 */
+        .dashboard-intro { text-align: center; margin-bottom: 35px; }
+        .dashboard-intro h2 { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .dashboard-intro p { color: var(--text-sub); font-size: 1rem; font-weight: 500; padding: 0 10px; }
 
-        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        /* 🔥 모바일 반응형 그리드 버그 수정 (minmax 최적화) */
+        .tool-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 16px; 
+        }
+        
         .tool-card {
             background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            padding: 30px 20px; border-radius: 24px; text-align: center; cursor: pointer;
+            padding: 25px 20px; border-radius: 24px; text-align: center; cursor: pointer;
             border: 1px solid var(--border-color); box-shadow: 0 10px 30px var(--shadow);
+            transform: translate3d(0,0,0); /* 하드웨어 가속 유도 구형 엔진 버그 방지 */
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
         }
-        .tool-card:hover {
-            transform: translateY(-8px) scale(1.02); background: var(--card-hover);
-            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.08);
+        
+        /* 모바일 터치 지연 및 호버 튐 현상 방지 미디어 쿼리 */
+        @media (hover: hover) {
+            .tool-card:hover {
+                transform: translateY(-8px) scale(1.02); background: var(--card-hover);
+                box-shadow: 0 20px 40px rgba(37, 99, 235, 0.08);
+            }
+            .tool-card:hover .tool-icon { transform: rotate(-8deg) scale(1.08); }
         }
-        .tool-icon { font-size: 3rem; margin-bottom: 15px; display: inline-block; transition: transform 0.3s; }
-        .tool-card:hover .tool-icon { transform: rotate(-8deg) scale(1.08); }
-        .tool-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
-        .tool-card p { font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; }
 
-        /* 🛠️ 실행 공간 */
+        .tool-icon { font-size: 2.8rem; margin-bottom: 12px; display: inline-block; transition: transform 0.3s; }
+        .tool-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+        .tool-card p { font-size: 0.85rem; color: var(--text-sub); line-height: 1.4; }
+
+        /* 🛠️ 작업 공간 */
         .workspace {
             display: none; background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 32px; padding: 40px; border: 1px solid var(--border-color); box-shadow: 0 25px 50px rgba(0,0,0,0.04);
-            animation: cubicFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border-radius: 28px; padding: 30px 20px; border: 1px solid var(--border-color); box-shadow: 0 25px 50px rgba(0,0,0,0.04);
+            animation: cubicFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .back-btn {
             background: var(--input-bg); color: var(--text-main); border: 1px solid var(--input-border);
-            padding: 8px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 25px;
+            padding: 8px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 20px;
+            touch-action: manipulation;
         }
-        .back-btn:hover { transform: translateX(-3px); }
-        @keyframes cubicFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 🧮 계산기 내부 컴포넌트 */
+        @keyframes cubicFade { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+
+        /* 🧮 계산기 본체 */
         .calc-wrapper { display: flex; justify-content: center; }
-        .calculator { background: var(--calc-bg); padding: 22px; border-radius: 28px; width: 330px; border: 1px solid var(--border-color); }
+        .calculator { background: var(--calc-bg); padding: 18px; border-radius: 24px; width: 100%; max-width: 320px; border: 1px solid var(--border-color); }
         .display-container {
-            width: 100%; height: 85px; background: var(--input-bg); border-radius: 16px; margin-bottom: 20px;
-            padding: 0 20px; display: flex; align-items: center; overflow-x: auto; overflow-y: hidden; border: 1px solid var(--input-border);
+            width: 100%; height: 80px; background: var(--input-bg); border-radius: 14px; margin-bottom: 16px;
+            padding: 0 16px; display: flex; align-items: center; overflow-x: auto; overflow-y: hidden; border: 1px solid var(--input-border);
+            -webkit-overflow-scrolling: touch; /* 🔥 모바일 가속 스크롤 활성화 */
         }
         .display-container::-webkit-scrollbar { display: none; }
-        .display { color: var(--text-main); font-size: 2.2rem; font-weight: 600; width: 100%; text-align: right; }
-        .push-animation { animation: textPush 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards; }
-        @keyframes textPush { 0% { transform: scale(0.97) translateX(4px); } 100% { transform: scale(1) translateX(0); } }
+        .display { color: var(--text-main); font-size: 2rem; font-weight: 600; width: 100%; text-align: right; }
         
-        .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .buttons button {
-            padding: 18px; border-radius: 16px; border: none; font-size: 1.25rem; font-weight: 600; cursor: pointer;
+            padding: 16px 10px; border-radius: 14px; border: none; font-size: 1.15rem; font-weight: 600; cursor: pointer;
             background: var(--calc-btn); color: var(--calc-text); border: 1px solid var(--input-border);
+            touch-action: manipulation;
         }
-        .buttons button:hover { transform: translateY(-3px); background: var(--card-hover); }
         .buttons button.operator { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
         body.dark .buttons button.operator { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
         .buttons button.clear { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
         body.dark .buttons button.clear { background: #451a03; color: #f87171; border-color: #7f1d1d; }
         .buttons button.equal { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; grid-column: span 2; border: none; }
 
-        /* 기타 인풋 창 구조 */
-        .tool-title { font-size: 1.6rem; margin-bottom: 20px; font-weight: 800; }
+        /* 인풋 폼 고도화 (iOS 인앱 브라우저 자동 줌인 현상 방지: 16px 준수) */
+        .tool-title { font-size: 1.4rem; margin-bottom: 16px; font-weight: 800; }
         textarea, input[type="date"] {
             width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
-            border-radius: 16px; color: var(--text-main); padding: 16px; font-size: 1rem; outline: none; margin-bottom: 20px;
+            border-radius: 14px; color: var(--text-main); padding: 14px; font-size: 16px; outline: none; margin-bottom: 16px;
         }
         textarea:focus, input:focus { border-color: #2563eb; }
-        .counter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .counter-box { background: var(--input-bg); padding: 20px; border-radius: 18px; text-align: center; border: 1px solid var(--input-border); }
-        .counter-box .p-label { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
-        .counter-box span { display: block; font-size: 2rem; font-weight: 800; color: #2563eb; margin-top: 5px; }
+        .counter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .counter-box { background: var(--input-bg); padding: 16px; border-radius: 14px; text-align: center; border: 1px solid var(--input-border); }
+        .counter-box .p-label { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
+        .counter-box span { display: block; font-size: 1.8rem; font-weight: 800; color: #2563eb; margin-top: 4px; }
         
         .action-btn {
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border: none;
-            padding: 15px 30px; border-radius: 16px; font-size: 1rem; font-weight: 700; cursor: pointer;
+            padding: 14px 28px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; touch-action: manipulation;
         }
-        .result-box { margin-top: 25px; padding: 22px; background: var(--input-bg); border-radius: 18px; text-align: center; font-size: 1.3rem; font-weight: 700; border: 2px dashed var(--input-border); }
+        .result-box { margin-top: 20px; padding: 18px; background: var(--input-bg); border-radius: 14px; text-align: center; font-size: 1.15rem; font-weight: 700; border: 2px dashed var(--input-border); }
 
-        /* 💡 4. 토스스타일 비어있는 하단 채우기 (아이디어 도입) */
-        footer {
-            max-width: 1000px; width: 100%; margin: 40px auto 20px auto; padding: 0 20px;
-            display: flex; flex-direction: column; gap: 20px;
-        }
+        /* 하단 컴포넌트 */
+        footer { max-width: 1000px; width: 100%; margin: 30px auto 15px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 16px; }
         .toss-banner {
-            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px;
-            padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px var(--shadow);
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px;
+            padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px var(--shadow);
+            flex-wrap: wrap; gap: 12px;
         }
-        .toss-banner-text h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
-        .toss-banner-text p { font-size: 0.9rem; color: var(--text-sub); }
-        .toss-banner .suggest-link {
-            background: #2563eb; color: white; padding: 10px 18px; border-radius: 12px; text-decoration: none; font-size: 0.85rem; font-weight: 700;
+        .toss-banner-text h4 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+        .toss-banner-text p { font-size: 0.85rem; color: var(--text-sub); }
+        .toss-banner .suggest-btn {
+            background: #2563eb; color: white; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; border: none; cursor: pointer; touch-action: manipulation;
         }
-        .toss-banner .suggest-link:hover { background: #1d4ed8; }
         
-        .tip-widget {
-            background: transparent; text-align: center; padding: 10px; color: var(--text-sub); font-size: 0.85rem; font-weight: 500;
+        .tip-widget { background: transparent; text-align: center; padding: 5px; color: var(--text-sub); font-size: 0.8rem; font-weight: 500; }
+
+        /* 📥 1. 토스 감성 인앱 피드백 레이어 모달 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: var(--input-bg); border: 1px solid var(--input-border); width: 90%; max-width: 400px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: scale(0.95); transition: transform 0.2s ease;
+        }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-card h4 { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
+        .modal-card p { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 16px; }
+        .modal-flex-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+        /* 모바일 해상도 방어선 패딩 조절 */
+        @media (max-width: 480px) {
+            .container { padding: 20px 15px; }
+            .toss-banner { flex-direction: column; text-align: center; }
+            .toss-banner .suggest-btn { width: 100%; }
         }
     </style>
 </head>
@@ -210,15 +236,13 @@
     <header>
         <h1 onclick="showHome()">✨ UtiliTools</h1>
         <div class="controls">
-            <!-- 1. 테마 스위치 -->
-            <button class="control-btn" onclick="toggleTheme()" id="theme-btn">🌙 Dark</button>
-            <!-- 2. 언어 스위치 -->
+            <button class="control-btn" onclick="toggleTheme()" id="theme-btn">🌙 다크 모드</button>
             <button class="control-btn" onclick="toggleLang()" id="lang-btn">🌐 EN</button>
         </div>
     </header>
 
     <div class="container">
-        <!-- 🏠 홈 대시보드 영역 -->
+        <!-- 🏠 홈 뷰 대시보드 -->
         <div id="home-view">
             <div class="dashboard-intro">
                 <h2 id="txt-main-title">오늘 어떤 도구가 필요하세요?</h2>
@@ -249,7 +273,7 @@
             </div>
         </div>
 
-        <!-- 🛠️ 개별 툴 워크스페이스 공간 -->
+        <!-- 🛠️ 실행 워크스페이스 -->
         <div id="workspace-view" class="workspace">
             <button class="back-btn" onclick="showHome()" id="txt-back">← 돌아가기</button>
             
@@ -286,7 +310,7 @@
             <!-- [도구 2] 글자수 세기 -->
             <div id="counter-tool" class="tool-content" style="display:none;">
                 <div class="tool-title" id="t-count-title">✍️ 실시간 글자수 세기</div>
-                <textarea id="counter-input" rows="8" placeholder="내용을 채워주시면 바로 글자수를 분석할게요." oninput="countText()"></textarea>
+                <textarea id="counter-input" rows="7" placeholder="내용을 채워주시면 바로 글자수를 분석할게요." oninput="countText()"></textarea>
                 <div class="counter-grid">
                     <div class="counter-box"><div class="p-label" id="lbl-space-inc">공백 포함</div><span id="char-with-space">0</span></div>
                     <div class="counter-box"><div class="p-label" id="lbl-space-exc">공백 제외</div><span id="char-without-space">0</span></div>
@@ -310,22 +334,33 @@
         </div>
     </div>
 
-    <!-- 💡 하단 공백 보완 배너 및 팁 시스템 -->
+    <!-- 하단 피드백 배너 섹션 -->
     <footer>
         <div class="toss-banner">
             <div class="toss-banner-text">
                 <h4 id="banner-title">내가 찾는 도구가 없나요?</h4>
                 <p id="banner-desc">필요한 기능이 있다면 언제든 편하게 알려주세요. 금방 만들어 드릴게요.</p>
             </div>
-            <a href="https://github.com" target="_blank" class="suggest-link" id="banner-btn">의견 내기</a>
+            <button class="suggest-btn" onclick="openFeedback()" id="banner-btn">의견 내기</button>
         </div>
         <div class="tip-widget" id="tip-display">💡 팁: Ctrl + Backspace를 누르면 글자 전체를 빠르게 지울 수 있어요.</div>
     </footer>
 
+    <!-- 📥 1. 외부로 나가지 않는 인앱 피드백 제안 창 (모달 시스템) -->
+    <div id="feedback-modal" class="modal-overlay" onclick="closeFeedbackViaOverlay(event)">
+        <div class="modal-card">
+            <h4 id="md-title">💡 어떤 도구가 필요하세요?</h4>
+            <p id="md-desc">아이디어나 개선사항을 자유롭게 적어주세요. UtiliTools 팀에게 직접 전달돼요.</p>
+            <textarea id="feedback-textarea" rows="4" placeholder="예시: 학점 계산기 기능 넣어주세요!"></textarea>
+            <div class="modal-flex-btns">
+                <button class="control-btn" onclick="closeFeedback()" id="md-cancel">취소</button>
+                <button class="action-btn" onclick="submitFeedback()" style="padding: 10px 20px;" id="md-submit">보내기</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        /* ---------------------------------------------------- */
-        /* 🌐 2&3. 다국어 데이터 및 토스 스타일 UX 라이팅 정의 */
-        /* ---------------------------------------------------- */
+        /* 🌐 다국어 사전 템플릿 통합 확장 */
         let currentLang = 'ko';
         const langData = {
             ko: {
@@ -339,26 +374,30 @@
                 tCountTitle: "✍️ 실시간 글자수 세기", countPlaceholder: "내용을 채워주시면 바로 글자수를 분석할게요.", lblSpaceInc: "공백 포함", lblSpaceExc: "공백 제외",
                 tDdayTitle: "📅 디데이 계산기", ddayDefault: "날짜를 고르면 디데이가 나타나요.",
                 tPickTitle: "🎰 무작위 랜덤 추첨기", pickPlaceholder: "후보 항목들을 콤마(,) 혹은 엔터(줄바꿈)로 구분해서 적어주세요.", btnPick: "🎯 추첨하기", pickDefault: "최종 낙점될 주인공은 누구일까요?",
-                bTitle: "내가 찾는 도구가 없나요?", bDesc: "필요한 기능이 있다면 언제든 편하게 알려주세요. 금방 만들어 드릴게요.", bBtn: "의견 내기"
+                bTitle: "내가 찾는 도구가 없나요?", bDesc: "필요한 기능이 있다면 언제든 편하게 알려주세요. 금방 만들어 드릴게요.", bBtn: "의견 내기",
+                mdTitle: "💡 어떤 도구가 필요하세요?", mdDesc: "아이디어나 개선사항을 자유롭게 적어주세요. UtiliTools 팀에게 직접 전달돼요.", mdPlaceholder: "예시: 학점 계산기 기능 넣어주세요!", mdCancel: "취소", mdSubmit: "보내기",
+                alertSuccess: "🚀 소중한 의견이 전송되었어요! 더 발전하는 도구가 될게요.", alertEmpty: "⚠️ 내용을 입력해 주세요."
             },
             en: {
                 themeDark: "🌙 Dark Mode", themeLight: "☀️ Light Mode",
-                mainTitle: "What tool do you need today?", mainSub: "Handle repetitive, annoying daily tasks fast and simple in one place.",
+                mainTitle: "What tool do you need today?", mainSub: "Handle repetitive daily tasks fast and simple in one place.",
                 calcTitle: "Calculator", calcDesc: "Flawless computation with a satisfying custom feel",
-                countTitle: "Character Counter", countDesc: "Analyze word count and lengths without spaces in real-time",
+                countTitle: "Counter", countDesc: "Analyze word count and lengths without spaces in real-time",
                 ddayTitle: "D-Day Tracker", ddayDesc: "Never forget your precious milestones and exam dates",
                 pickTitle: "Random Picker", pickDesc: "Settle choices or menus instantly in just 3 seconds",
                 back: "← Back Home",
                 tCountTitle: "✍️ Live Character Counter", countPlaceholder: "Start typing here to see instant character metrics.", lblSpaceInc: "With Spaces", lblSpaceExc: "No Spaces",
                 tDdayTitle: "📅 D-Day Tracker", ddayDefault: "Pick a date to start the counter.",
                 tPickTitle: "🎰 Random Winner Picker", pickPlaceholder: "Enter options separated by commas or line breaks.", btnPick: "🎯 Pick Now", pickDefault: "Who will be the lucky winner?",
-                bTitle: "Looking for another tool?", bDesc: "Let us know what you need anytime. We'll build it for you in a flash.", bBtn: "Feedback"
+                bTitle: "Looking for another tool?", bDesc: "Let us know what you need anytime. We'll build it for you in a flash.", bBtn: "Feedback",
+                mdTitle: "💡 Suggest a New Tool", mdDesc: "Feel free to share your thoughts or ideas. It goes straight to the team.", mdPlaceholder: "e.g. Please add a GPA calculator!", mdCancel: "Cancel", mdSubmit: "Submit",
+                alertSuccess: "🚀 Your feedback has been sent! Thank you for making us better.", alertEmpty: "⚠️ Please write something first."
             }
         };
 
         const tips = {
             ko: [
-                "💡 팁: 계산기 화면을 마우스로 잡고 옆으로 당기면 긴 수식도 스크롤해서 볼 수 있어요.",
+                "💡 팁: 계산기 화면을 손으로 밀거나 넘기면 긴 수식도 스크롤해서 볼 수 있어요.",
                 "💡 팁: 글자수 세기 툴은 띄어쓰기와 줄바꿈도 실시간으로 감지해서 채점해요.",
                 "💡 팁: 랜덤 추첨기에 항목을 많이 넣을수록 슬롯머신 연출이 화려해져요.",
                 "💡 팁: 디데이 계산기에서 과거 날짜를 선택하면 그날로부터 며칠이 지났는지 알려드려요."
@@ -406,52 +445,42 @@
             document.getElementById('banner-title').textContent = l.bTitle;
             document.getElementById('banner-desc').textContent = l.bDesc;
             document.getElementById('banner-btn').textContent = l.bBtn;
+
+            // 모달 텍스트 번역 연동
+            document.getElementById('md-title').textContent = l.mdTitle;
+            document.getElementById('md-desc').textContent = l.mdDesc;
+            document.getElementById('feedback-textarea').placeholder = l.mdPlaceholder;
+            document.getElementById('md-cancel').textContent = l.mdCancel;
+            document.getElementById('md-submit').textContent = l.mdSubmit;
             
-            // 한마디 위젯 교체
             rotateTip();
         }
 
-        function toggleLang() {
-            currentLang = currentLang === 'ko' ? 'en' : 'ko';
-            updateLanguageUI();
-        }
+        function toggleLang() { currentLang = currentLang === 'ko' ? 'en' : 'ko'; updateLanguageUI(); }
+        function rotateTip() { const currentTips = tips[currentLang]; document.getElementById('tip-display').textContent = currentTips[Math.floor(Math.random() * currentTips.length)]; }
+        function toggleTheme() { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); document.getElementById('theme-btn').textContent = isDark ? langData[currentLang].themeLight : langData[currentLang].themeDark; }
 
-        function rotateTip() {
-            const currentTips = tips[currentLang];
-            const randomTip = currentTips[Math.floor(Math.random() * currentTips.length)];
-            document.getElementById('tip-display').textContent = randomTip;
-        }
-
-        /* ---------------------------------------------------- */
-        /* 🌓 1. 라이트 / 다크 모드 토글 스위치 로직 */
-        /* ---------------------------------------------------- */
-        function toggleTheme() {
-            document.body.classList.toggle('dark');
-            const isDark = document.body.classList.contains('dark');
-            document.getElementById('theme-btn').textContent = isDark ? langData[currentLang].themeLight : langData[currentLang].themeDark;
-        }
-
-        /* ---------------------------------------------------- */
-        /* 🔄 화면 라우터 제어 */
-        /* ---------------------------------------------------- */
+        /* 🔄 화면 라우팅 시스템 */
         const homeView = document.getElementById('home-view');
         const workspaceView = document.getElementById('workspace-view');
         const toolContents = document.querySelectorAll('.tool-content');
 
-        function showHome() {
-            workspaceView.style.display = 'none'; homeView.style.display = 'block';
-            toolContents.forEach(tool => tool.style.display = 'none');
-            rotateTip(); // 홈 화면 올 때 팁 새로고침 연출
+        function showHome() { workspaceView.style.display = 'none'; homeView.style.display = 'block'; toolContents.forEach(tool => tool.style.display = 'none'); rotateTip(); }
+        function openTool(toolId) { homeView.style.display = 'none'; workspaceView.style.display = 'block'; toolContents.forEach(tool => tool.style.display = 'none'); document.getElementById(toolId).style.display = 'block'; if(toolId === 'calculator-tool') { renderDisplay(fullExpression); autoScrollToRight(); } }
+
+        /* 📥 1. 피드백 제안 시스템 모달 함수 */
+        const modal = document.getElementById('feedback-modal');
+        function openFeedback() { modal.classList.add('active'); document.getElementById('feedback-textarea').focus(); }
+        function closeFeedback() { modal.classList.remove('active'); document.getElementById('feedback-textarea').value = ''; }
+        function closeFeedbackViaOverlay(e) { if(e.target === modal) closeFeedback(); }
+        function submitFeedback() {
+            const text = document.getElementById('feedback-textarea').value.trim();
+            if(!text) { alert(langData[currentLang].alertEmpty); return; }
+            alert(langData[currentLang].alertSuccess); // 실제 프로덕션 단계선 여기서 서버 API나 Webhook 연동 가능
+            closeFeedback();
         }
 
-        function openTool(toolId) {
-            homeView.style.display = 'none'; workspaceView.style.display = 'block';
-            toolContents.forEach(tool => tool.style.display = 'none');
-            document.getElementById(toolId).style.display = 'block';
-            if(toolId === 'calculator-tool') { renderDisplay(fullExpression); autoScrollToRight(); }
-        }
-
-        /* 🧮 [기능 1] 계산기 로직 공정 코드 보존 */
+        /* 🧮 [기능 1] 계산기 모듈 */
         const display = document.getElementById('result');
         const container = document.getElementById('display-container');
         let fullExpression = '0'; 
@@ -474,11 +503,19 @@
             } catch (error) { fullExpression = '0'; display.textContent = 'Error'; setTimeout(clearDisplay, 1500); }
             autoScrollToRight();
         }
-        container.addEventListener('wheel', (evt) => { evt.preventDefault(); container.scrollLeft += evt.deltaY; });
+
+        /* 🔥 2. 모바일/크로스 브라우저 호환성을 위한 터치&드래그 겸용 스크롤 이벤트 바인딩 */
         let isDown = false, startX, scrollLeft;
+        // PC 마우스 드래그 핸들러
         container.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - container.offsetLeft; scrollLeft = container.scrollLeft; });
         container.addEventListener('mouseleave', () => { isDown = false; }); container.addEventListener('mouseup', () => { isDown = false; });
-        container.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - container.offsetLeft; const walk = (x - startX) * 1.5; container.scrollLeft = scrollLeft - walk; });
+        container.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - container.offsetLeft; container.scrollLeft = scrollLeft - (x - startX) * 1.5; });
+        // 모바일 터치 드래그 핸들러 (인앱/특정 엔진 완벽 대응)
+        container.addEventListener('touchstart', (e) => { isDown = true; startX = e.touches[0].pageX - container.offsetLeft; scrollLeft = container.scrollLeft; }, {passive: true});
+        container.addEventListener('touchend', () => { isDown = false; });
+        container.addEventListener('touchmove', (e) => { if(!isDown) return; const x = e.touches[0].pageX - container.offsetLeft; container.scrollLeft = scrollLeft - (x - startX) * 1.5; }, {passive: true});
+
+        // 전역 키보드 리스너
         document.addEventListener('keydown', function(event) {
             if (document.getElementById('calculator-tool').style.display === 'none') return;
             if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
@@ -491,20 +528,14 @@
         });
 
         /* ✍️ [기능 2] 글자수 세기 */
-        function countText() {
-            const text = document.getElementById('counter-input').value;
-            document.getElementById('char-with-space').textContent = text.length;
-            document.getElementById('char-without-space').textContent = text.replace(/\s/g, "").length;
-        }
+        function countText() { const text = document.getElementById('counter-input').value; document.getElementById('char-with-space').textContent = text.length; document.getElementById('char-without-space').textContent = text.replace(/\s/g, "").length; }
 
         /* 📅 [기능 3] 디데이 계산기 */
         function calculateDDay() {
-            const targetInput = document.getElementById('target-date').value;
-            if (!targetInput) return;
+            const targetInput = document.getElementById('target-date').value; if (!targetInput) return;
             const today = new Date(); today.setHours(0,0,0,0);
             const target = new Date(targetInput); target.setHours(0,0,0,0);
-            const diffTime = target.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffTime = target.getTime() - today.getTime(); const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             const resultBox = document.getElementById('dday-result');
 
             if (currentLang === 'ko') {
@@ -520,17 +551,10 @@
 
         /* 🎰 [기능 4] 랜덤 추첨기 */
         function pickRandom() {
-            const rawText = document.getElementById('picker-items').value.trim();
-            const resultBox = document.getElementById('picker-result');
-            if(!rawText) {
-                resultBox.textContent = currentLang === 'ko' ? "⚠️ 후보를 적어주셔야 골라드릴 수 있어요." : "⚠️ Please enter some options first.";
-                return;
-            }
+            const rawText = document.getElementById('picker-items').value.trim(); const resultBox = document.getElementById('picker-result');
+            if(!rawText) { resultBox.textContent = currentLang === 'ko' ? "⚠️ 후보를 적어주셔야 골라드릴 수 있어요." : "⚠️ Please enter some options first."; return; }
             let items = rawText.split(/,|\n/).map(item => item.trim()).filter(item => item !== "");
-            if(items.length < 2) {
-                resultBox.textContent = currentLang === 'ko' ? "⚠️ 최소 2개 이상은 써주셔야 추첨이 돼요." : "⚠️ Please enter at least 2 items.";
-                return;
-            }
+            if(items.length < 2) { resultBox.textContent = currentLang === 'ko' ? "⚠️ 최소 2개 이상은 써주셔야 추첨이 돼요." : "⚠️ Please enter at least 2 items."; return; }
 
             let count = 0;
             const interval = setInterval(() => {
@@ -538,16 +562,15 @@
                 resultBox.textContent = currentLang === 'ko' ? `🎲 고르는 중... [ ${randomTemp} ]` : `🎲 Shuffling... [ ${randomTemp} ]`;
                 count++;
                 if(count > 10) {
-                    clearInterval(interval);
-                    const finalChoice = items[Math.floor(Math.random() * items.length)];
+                    clearInterval(interval); const finalChoice = items[Math.floor(Math.random() * items.length)];
                     resultBox.innerHTML = currentLang === 'ko' ? 
-                        `🎯 오늘의 추천: <span style='color: #db2777; font-size: 1.5rem; font-weight:800;'>${finalChoice}</span>` :
-                        `🎯 Picked: <span style='color: #db2777; font-size: 1.5rem; font-weight:800;'>${finalChoice}</span>`;
+                        `🎯 오늘의 추천: <span style='color: #db2777; font-size: 1.4rem; font-weight:800;'>${finalChoice}</span>` :
+                        `🎯 Picked: <span style='color: #db2777; font-size: 1.4rem; font-weight:800;'>${finalChoice}</span>`;
                 }
             }, 80);
         }
 
-        // 초기 시작 가동
+        // 초기 언어 UI 연동 가동
         updateLanguageUI();
     </script>
 </body>
