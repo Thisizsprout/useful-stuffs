@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 🎬 4. 상단 노출 이름을 UtiliTools로 깔끔하게 고정 -->
     <title>UtiliTools</title>
     <style>
         /* 🎨 글로벌 프리미엄 테마 시스템 */
@@ -24,6 +23,7 @@
             --radial-1: rgba(147, 197, 253, 0.4);
             --radial-2: rgba(247, 185, 232, 0.4);
             --dropdown-hover: #f1f5f9;
+            --modal-overlay: rgba(15, 23, 42, 0.3);
         }
 
         body.dark {
@@ -43,6 +43,7 @@
             --radial-1: rgba(59, 130, 246, 0.15);
             --radial-2: rgba(219, 39, 119, 0.15);
             --dropdown-hover: #334155;
+            --modal-overlay: rgba(0, 0, 0, 0.6);
         }
 
         * {
@@ -78,6 +79,7 @@
             font-size: 1.35rem; font-weight: 800;
             background: linear-gradient(45deg, #2563eb, #db2777);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer;
+            user-select: none; -webkit-user-select: none;
         }
 
         .controls { display: flex; gap: 8px; align-items: center; position: relative; }
@@ -87,18 +89,19 @@
             outline: none; touch-action: manipulation; display: flex; align-items: center; gap: 4px;
         }
 
-        /* 🎬 1. 커스텀 언어 선택 드롭다운 디자인 & 애니메이션 효과 */
+        /* 🎬 4. 언어 선택 드롭다운 가속 탄성 애니메이션 세팅 */
         .lang-dropdown-wrapper { position: relative; }
         .lang-dropdown-list {
             position: absolute; top: calc(100% + 8px); right: 0;
             background: var(--card-bg); backdrop-filter: blur(25px) saturate(120%); -webkit-backdrop-filter: blur(25px) saturate(120%);
             border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 12px 30px var(--shadow);
-            min-width: 110px; display: none; opacity: 0; transform: translateY(-10px);
-            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            min-width: 110px; opacity: 0; visibility: hidden;
+            transform: scale(0.85) translateY(-12px); transform-origin: top right;
+            transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.25s;
             overflow: hidden; z-index: 1000;
-            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px); background-size: 8px 8px;
+            background-image: radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px); background-size: 8px 8px;
         }
-        .lang-dropdown-list.show { display: block; opacity: 1; transform: translateY(0); }
+        .lang-dropdown-list.show { display: block; visibility: visible; opacity: 1; transform: scale(1) translateY(0); }
         .lang-item {
             padding: 10px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
             color: var(--text-main); transition: background 0.15s; text-align: left;
@@ -107,7 +110,6 @@
 
         .container { max-width: 1100px; width: 100%; margin: 0 auto; padding: 30px 20px; flex: 1; }
 
-        /* 양방향 프레임 뷰 가속 트랜지션 */
         .view-frame {
             opacity: 0; transform: translate3d(0, 15px, 0) scale(0.99);
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -147,7 +149,6 @@
         .action-btn:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
         .result-box { margin-top: 16px; padding: 18px; background: var(--input-bg); border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 700; border: 2px dashed var(--input-border); position: relative; overflow: hidden; }
 
-        /* 🎬 3. 계산기 내부 상호작용 애니메이션 컴포넌트 */
         .calc-wrapper { display: flex; justify-content: center; }
         .calculator { background: var(--calc-bg); padding: 18px; border-radius: 24px; width: 100%; max-width: 310px; border: 1px solid var(--border-color); }
         .display-container { width: 100%; height: 75px; background: var(--input-bg); border-radius: 14px; margin-bottom: 14px; padding: 0 16px; display: flex; align-items: center; overflow-x: auto; border: 1px solid var(--input-border); }
@@ -186,12 +187,33 @@
         .toss-banner-text p { font-size: 0.85rem; color: var(--text-sub); }
         .toss-banner .suggest-btn { background: #2563eb; color: white; padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; border: none; cursor: pointer; transition: transform 0.1s ease; }
         .toss-banner .suggest-btn:active { transform: scale(0.95); }
-        .tip-widget { text-align: center; color: var(--text-sub); font-size: 0.8rem; font-weight: 500; height: 18px; transition: opacity 0.2s ease, transform 0.2s ease; }
+        .tip-widget { text-align: center; color: var(--text-sub); font-size: 0.8rem; font-weight: 500; min-height: 18px; transition: opacity 0.2s ease, transform 0.2s ease; }
 
-        /* 🎬 2. 의견 내기 성공 안내 토스트 알림 컴포넌트 */
+        /* 🎬 1. 의견 수렴 커스텀 대화형 모달 상자 UI 디자인 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--modal-overlay); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            z-index: 5000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: var(--card-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border-color); border-radius: 24px; padding: 24px;
+            width: 90%; max-width: 440px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: scale(0.9) translateY(15px); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
+        .modal-card h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; }
+        .modal-card p { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 14px; line-height: 1.4; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .modal-btn { padding: 10px 16px; border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: none; }
+        .modal-btn.cancel { background: var(--input-border); color: var(--text-main); }
+        .modal-btn.submit { background: #2563eb; color: white; }
+
         .toast-msg {
-            position: fixed; bottom: 30px; left: 51%; transform: translateX(-50%) translateY(20px);
-            background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 12px 24px; border-radius: 30px;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: rgba(15, 23, 42, 0.95); color: #ffffff; padding: 12px 24px; border-radius: 30px;
             font-size: 0.9rem; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             z-index: 10000; opacity: 0; pointer-events: none;
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -199,7 +221,6 @@
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         body.dark .toast-msg { background: rgba(255, 255, 255, 0.95); color: #0f172a; }
 
-        /* 🎬 7. 로지텍 G HUB 앱 스타일의 고강도 테크니컬 RGB 링 오버레이 */
         .logitech-neon-border {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; border-radius: 14px; z-index: 5;
@@ -218,6 +239,12 @@
         .logitech-active-low { animation: logitech-wave-low 1.2s linear infinite; border: 2px solid #00ffff !important; }
         .logitech-active-high { animation: logitech-wave-high 0.6s linear infinite; border: 2px solid #ff0055 !important; }
 
+        /* 🎬 3. 이스터에그 파티클 캔버스 레이어 단독 배치 */
+        #easter-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 99999; display: none;
+        }
+
         @media (max-width: 600px) {
             .container { padding: 15px; }
             .toss-banner { flex-direction: column; text-align: center; }
@@ -229,13 +256,15 @@
 </head>
 <body>
 
+    <!-- 이스터에그 전용 특수 효과 렌더러 -->
+    <canvas id="easter-canvas"></canvas>
+
     <header>
-        <!-- 🎬 4. 메인 대시보드 로고 이름 고정 -->
-        <h1 onclick="showHome()">✨ UtiliTools</h1>
+        <!-- 🎬 3. 이스터에그 연타 인터랙션 핸들러 위임 -->
+        <h1 onclick="handleLogoClick()">✨ UtiliTools</h1>
         <div class="controls">
             <button class="control-btn" onclick="toggleTheme()" id="theme-btn">🌙 다크 모드</button>
             
-            <!-- 🎬 1. 웹사이트 텍스처 및 부드러운 애니메이션이 추가된 수제 드롭다운 -->
             <div class="lang-dropdown-wrapper">
                 <button class="control-btn" id="lang-btn" onclick="toggleLangDropdown(event)">🇰🇷 KO ▼</button>
                 <div class="lang-dropdown-list" id="lang-dropdown">
@@ -250,14 +279,13 @@
     </header>
 
     <div class="container">
-        <!-- 🏠 홈 메인 대시보드 구조 -->
+        <!-- 홈 대시보드 구조 -->
         <div id="home-view" class="view-frame">
             <div class="dashboard-intro">
                 <h2 id="txt-main-title">오늘 어떤 도구가 필요하세요?</h2>
                 <p id="txt-main-sub">매일 반복되는 번거로운 확인을 한곳에서 쉽고 빠르게 처리해요.</p>
             </div>
             
-            <!-- 🎬 6. 기능 밑 설명을 과장 없이 담백하고 전문적인 문구로 전면 수정 -->
             <div class="tool-grid">
                 <div class="tool-card" onclick="openTool('calculator-tool')">
                     <span class="tool-icon">🧮</span><h3 id="card-calc-title">계산기</h3><p id="card-calc-desc">사칙연산 및 소수점 계산 기능을 안정적으로 지원합니다.</p>
@@ -286,7 +314,7 @@
             </div>
         </div>
 
-        <!-- 🛠️ 도구 작업 워크스페이스 구조 -->
+        <!-- 작업 워크스페이스 구조 -->
         <div id="workspace-view" class="view-frame workspace">
             <button class="back-btn" onclick="showHome()" id="txt-back">← 돌아가기</button>
             
@@ -312,7 +340,7 @@
                 <div class="result-box" id="dday-result">날짜를 고르면 디데이가 나타나요.</div>
             </div>
 
-            <!-- [4] 랜덤 추첨기 (🎬 7. 로지텍 G HUB 모티브 레이아웃 연출 업그레이드) -->
+            <!-- [4] 랜덤 추첨기 -->
             <div id="picker-tool" class="tool-content" style="display:none;">
                 <div class="tool-title" id="t-pick-title">🎰 무작위 랜덤 추첨기</div>
                 <textarea id="picker-items" rows="4" placeholder="항목을 쉼표(,)나 줄바꿈으로 구분해 기입해주세요. 항목이 많을수록 이펙트가 고조됩니다."></textarea>
@@ -381,21 +409,32 @@
         </div>
     </div>
 
-    <!-- 🎬 2. 정상 작동 및 알림 호출을 수정한 의견 내기 영역 -->
+    <!-- 하단 푸터 배너 영역 -->
     <footer>
         <div class="toss-banner">
             <div class="toss-banner-text"><h4 id="banner-title">내가 찾는 도구가 없나요?</h4><p id="banner-desc">필요한 기능이 있다면 언제든 편하게 알려주세요.</p></div>
-            <button class="suggest-btn" id="banner-btn" onclick="submitFeedback()">의견 내기</button>
+            <!-- 🎬 1. 버그 수정: 바로 제출되지 않고 모달창을 띄우도록 이벤트 연결 변경 -->
+            <button class="suggest-btn" id="banner-btn" onclick="openFeedbackModal()">의견 내기</button>
         </div>
-        <!-- 🎬 5. 유기적으로 순환 매칭되는 다이내믹 가변 팁 배치 영역 -->
         <div class="tip-widget" id="tip-display">💡</div>
     </footer>
 
-    <!-- 🎬 2. 정상 전송 완료 토스트 엘리먼트 -->
+    <!-- 🎬 1. 의견 수렴용 인풋 모달 레이어 구조 배치 -->
+    <div class="modal-overlay" id="feedback-modal-layer" onclick="closeFeedbackModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <h3 id="md-title">유저 의견 보내기</h3>
+            <p id="md-desc">UtiliTools에 추가되었으면 하는 기능이나 개선점을 자유롭게 적어주세요.</p>
+            <textarea id="feedback-text-input" rows="4" placeholder="내용을 입력해주세요..." style="margin-bottom: 15px; resize: none;"></textarea>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeFeedbackModal()" id="md-cancel">취소</button>
+                <button class="modal-btn submit" onclick="confirmFeedbackSubmit()" id="md-submit">제출하기</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-msg" id="toast-alert">의견이 성공적으로 접수되었습니다. 감사합니다!</div>
 
     <script>
-        /* 🌐 글로벌 5대 다국어 시스템 데이터셋 */
         let currentLang = 'ko';
         const langData = {
             ko: {
@@ -417,7 +456,8 @@
                 swStart: "시작", swStop: "정지", swReset: "리셋",
                 cat_length: "길이 변환 (Length)", cat_weight: "무게 변환 (Weight)", cat_area: "넓이 변환 (Area)", cat_volume: "부피 변환 (Volume)", cat_temp: "온도 변환 (Temperature)",
                 alertEmpty: "항목을 기입해 주세요.",
-                toastSuccess: "의견이 성공적으로 접수되었습니다. 감사합니다!"
+                toastSuccess: "의견이 성공적으로 접수되었습니다. 감사합니다!",
+                mdTitle: "유저 의견 보내기", mdDesc: "UtiliTools에 추가되었으면 하는 기능이나 개선점을 적어주세요.", mdCancel: "취소", mdSubmit: "제출하기", mdPlaceholder: "내용을 입력해주세요..."
             },
             en: {
                 themeDark: "🌙 Dark Mode", themeLight: "☀️ Light Mode",
@@ -438,19 +478,20 @@
                 swStart: "Start", swStop: "Stop", swReset: "Reset",
                 cat_length: "Length Converter", cat_weight: "Weight Converter", cat_area: "Area Converter", cat_volume: "Volume Converter", cat_temp: "Temperature Converter",
                 alertEmpty: "Please enter items.",
-                toastSuccess: "Your feedback has been successfully submitted. Thank you!"
+                toastSuccess: "Your feedback has been successfully submitted. Thank you!",
+                mdTitle: "Send Feedback", mdDesc: "Feel free to leave suggestions or feature requests for UtiliTools.", mdCancel: "Cancel", mdSubmit: "Submit", mdPlaceholder: "Type your feedback here..."
             },
             ja: {
                 themeDark: "🌙 ダーク", themeLight: "☀️ ライト",
-                mainTitle: "今日はどのツールを使いますか？", mainSub: "毎日の繰り返しの確認作業を、一箇所で素早く解決します。",
+                mainTitle: "今日はどのツールを使いますか？", mainSub: "毎日の繰り返しの確認作業를 一箇所で素早く解決します。",
                 calcTitle: "計算機", calcDesc: "四則演算および小数点計算を安定してサポートします。",
                 countTitle: "文字수カウント", countDesc: "入力されたテキストの空白を含む・除く文字数を算出します。",
                 ddayTitle: "D-Day計測", ddayDesc: "指定した基準日からの残り日数や経過日数を計算します。",
                 pickTitle: "ランダム抽選", pickDesc: "入力されたリストからランダムに項目を公正に抽出します。",
                 bmiTitle: "BMI計算機", bmiDesc: "身長と体重データに基づいて体格指数を測定します。",
-                pwTitle: "パスワード生成", pwDesc: "ユーザー設定のルールに従って安全なランダム暗号を生成します。",
+                pwTitle: "パスワード生成", pwDesc: "ユーザー設定의 ルールに従って安全なランダム暗号を生成します。",
                 stopTitle: "ストップウォッチ", stopDesc: "0.01秒単位の精密な時間計測機能を実行します。",
-                unitTitle: "単位変換器", unitDesc: "長さ、重量、面積、体積、温度などの単位を相互換算します。",
+                unitTitle: "単位変換器", unitDesc: "長さ、重量、面積、体積、温度などの単位를 相互換算します。",
                 back: "← 戻る", tCountTitle: "✍️ 文字数カウンター", lblSpaceInc: "空白含む", lblSpaceExc: "空白除く",
                 tDdayTitle: "📅 D-Day計算", ddayDefault: "日付を選択するとカウントが始まります。", tPickTitle: "🎰 ランダム抽選機", btnPick: "🎯 抽選する", pickDefault: "当選者は誰でしょうか？",
                 bTitle: "必要なツールがないですか？", bDesc: "欲しい機能があれば、いつでもお気軽にお知らせください。", bBtn: "送信する",
@@ -459,7 +500,8 @@
                 swStart: "スタート", swStop: "ストップ", swReset: "リセット",
                 cat_length: "長さ変換", cat_weight: "重量変換", cat_area: "面積変換", cat_volume: "体積変換", cat_temp: "温度変換",
                 alertEmpty: "項目を入力してください。",
-                toastSuccess: "ご意見が正常に届きました。ありがとうございます！"
+                toastSuccess: "ご意見が正常に届きました。ありがとうございます！",
+                mdTitle: "フィードバック送信", mdDesc: "追加してほしい機能や改善点があれば自由にご記入ください。", mdCancel: "キャンセル", mdSubmit: "送信", mdPlaceholder: "内容を入力してください..."
             },
             zh: {
                 themeDark: "🌙 暗黑模式", themeLight: "☀️ 明亮模式",
@@ -480,7 +522,8 @@
                 swStart: "开始", swStop: "暂停", swReset: "重置",
                 cat_length: "长度换算", cat_weight: "重量换算", cat_area: "面积换算", cat_volume: "体积换算", cat_temp: "温度换算",
                 alertEmpty: "请输入内容。",
-                toastSuccess: "意见已成功提交，非常感谢您的反馈！"
+                toastSuccess: "意见已成功提交，非常感谢您的反馈！",
+                mdTitle: "提交意见反馈", mdDesc: "欢迎写下您希望UtiliTools增加的功能或改进建议。", mdCancel: "取消", mdSubmit: "提交", mdPlaceholder: "请输入反馈内容..."
             },
             es: {
                 themeDark: "🌙 Oscuro", themeLight: "☀️ Claro",
@@ -501,35 +544,43 @@
                 swStart: "Iniciar", swStop: "Parar", swReset: "Reiniciar",
                 cat_length: "Conversor de Longitud", cat_weight: "Conversor de Peso", cat_area: "Conversor de Área", cat_volume: "Conversor de Volumen", cat_temp: "Conversor de Temperatura",
                 alertEmpty: "Por favor complete.",
-                toastSuccess: "¡Sugerencia recibida con éxito. Gracias!"
+                toastSuccess: "¡Sugerencia recibida con éxito. Gracias!",
+                mdTitle: "Enviar sugerencia", mdDesc: "Escribe cualquier función o mejora que te gustaría ver en UtiliTools.", mdCancel: "Cancelar", mdSubmit: "Enviar", mdPlaceholder: "Escribe aquí..."
             }
         };
 
-        /* 🎬 5. 수많은 유용한 다국어 팁 데이터베이스 매트릭스 */
+        /* 🎬 2. 실생활에서 100% 즉시 체감 가능한 유용성 위주의 다국어 리얼 라이프 팁 매트릭스 */
         const tipsDatabase = {
             ko: [
-                "💡 팁: 계산기 화면이 꽉 차면 손가락으로 밀어 좌우 스크롤을 할 수 있습니다.",
-                "💡 팁: 단위 변환기에서는 한국 전통 척도 단위인 '돈'과 '냥'도 지원합니다.",
-                "💡 팁: 비밀번호 생성 시 특수문자를 포함하면 해킹 위험도가 기하급수적으로 낮아집니다.",
-                "💡 팁: 추첨할 항목이 많아지면 로지텍 하드웨어 연출 강도가 더 증폭됩니다.",
-                "💡 팁: 글자수 세기 기능은 텍스트를 입력하는 즉시 로컬 메모리 상에서 실시간 집계됩니다.",
-                "💡 팁: 스톱워치는 브라우저 백그라운드 상태에서도 정밀 계산 시스템이 유지됩니다."
+                "💡 생활 팁: 딸기를 씻을 때 식초를 살짝 넣으면 표면 잔류 농약 제거에 아주 효과적입니다.",
+                "💡 살림 팁: 옷에 볼펜 자국이 묻었을 때 물파스로 가볍게 문지른 후 세탁하면 말끔히 지워집니다.",
+                "💡 요리 팁: 계란을 삶을 때 소금과 식초를 조금 넣으면 껍질이 깨지지 않고 나중에 쉽게 까집니다.",
+                "💡 건강 팁: 스마트폰을 오래 본 후에는 6m 이상 먼 곳을 20초간 바라보아야 눈의 피로가 풀립니다.",
+                "💡 청소 팁: 가위에 테이프 끈적이가 붙었을 때는 선크림을 발라 문지른 후 닦아내면 새것처럼 변합니다.",
+                "💡 일상 팁: 탄산음료를 바닥에 흘렸을 때 식초물이나 레몬즙을 천에 묻혀 닦으면 유분 끈적임이 사라집니다.",
+                "💡 살림 팁: 두부의 신선도를 오래 유지하려면 밀폐용기에 깨끗한 물과 소금을 약간 넣어 보관하세요.",
+                "💡 보관 팁: 바나나 송이의 꼭지 부분을 랩으로 감싸두면 갈변 및 숙성 속도를 크게 늦출 수 있습니다."
             ],
             en: [
-                "💡 Tip: You can scroll left or right on the calculator display if the formula gets too long.",
-                "💡 Tip: Including multiple character classes increases password security exponentially.",
-                "💡 Tip: The random picker amplifies its light matrix sequence as more lines are input.",
-                "💡 Tip: Our unit framework perfectly supports complex structural volume and temperature matrices."
+                "💡 Life Hack: Wrap the bananas' stems in plastic wrap to keep them fresh up to 5 days longer.",
+                "💡 Health Tip: Follow the 20-20-20 rule—look at something 20 feet away for 20 seconds every 20 minutes to reduce eye strain.",
+                "💡 Kitchen Tip: Add a teaspoon of baking soda to water when boiling eggs to make peeling the shell effortless.",
+                "💡 Cleaning Hack: Use a small drop of hand sanitizer or rubbing alcohol to clear ink stains from linen clothes instantly."
             ],
             ja: [
-                "💡 ヒント：計算機のディスプレイは、数式が長くなると左右にスクロールできます。",
-                "💡 ヒント：抽選する項目が多くなるほど、ネオンライトの回転速度とエフェクト密度が高まります。"
+                "💡 ライフハック：バナナの房の根元にラップを巻いておくと、黒くなるのを大幅に遅らせることができます。",
+                "💡 健康の知恵：スマホを20分見たら、6メートル先を20秒間眺めることで眼精疲労を軽減できます。"
             ],
-            zh: ["💡 提示：当计算器的公式过程过长时，您可以直接在显示屏区域左右横向滚动。"],
-            es: ["💡 Consejo: El generador de claves ofrece cifrado aleatorio nativo basado en la CPU de tu navegador."]
+            zh: [
+                "💡 生活妙招：清洗草莓时加入少许食醋，可以极其高效地降解表面残留的农药成分。",
+                "💡 日常贴士：衣服不小心沾上圆珠笔迹时，涂抹少许风油精或酒精揉搓后清洗即可轻松去除。"
+            ],
+            es: [
+                "💡 Truco Hogar: Envuelve el tallo de los plátanos con film transparente para ralentizar su maduración y evitar manchas.",
+                "💡 Salud Visual: Cada 20 minutos, descansa la vista mirando un objeto a 6 metros de distancia durante 20 segundos."
+            ]
         };
 
-        /* 🎬 1. 커스텀 언어 드롭다운 트랙 제어 */
         function toggleLangDropdown(e) {
             e.stopPropagation();
             document.getElementById('lang-dropdown').classList.toggle('show');
@@ -579,10 +630,17 @@
             
             document.getElementById('banner-title').textContent = l.bTitle; document.getElementById('banner-desc').textContent = l.bDesc; document.getElementById('banner-btn').textContent = l.bBtn;
             
+            // 모달창 내부 텍스트 언어팩 바인딩
+            document.getElementById('md-title').textContent = l.mdTitle;
+            document.getElementById('md-desc').textContent = l.mdDesc;
+            document.getElementById('md-cancel').textContent = l.mdCancel;
+            document.getElementById('md-submit').textContent = l.mdSubmit;
+            document.getElementById('feedback-text-input').placeholder = l.mdPlaceholder;
+
             setupCategoryStrings(); triggerDynamicTip();
         }
 
-        /* 🎬 5. 새로고침 및 액션 이용 완료/이동 시 부드러운 페이드 전환식 다이내믹 가변 팁 엔진 */
+        /* 🎬 2. 실생활 꿀팁들이 무작위 순환 표출되는 시스템 엔진 */
         function triggerDynamicTip() {
             const displayBox = document.getElementById('tip-display');
             displayBox.style.opacity = '0';
@@ -598,7 +656,6 @@
 
         function toggleTheme() { document.body.classList.toggle('dark'); updateLanguageUI(); }
 
-        /* 가속 라우터 제어 모듈 */
         const homeView = document.getElementById('home-view');
         const workspaceView = document.getElementById('workspace-view');
         const toolContents = document.querySelectorAll('.tool-content');
@@ -611,29 +668,135 @@
                 if(callback) callback();
                 requestAnimationFrame(() => { setTimeout(() => { toView.classList.add('visible'); }, 20); });
             }, 250);
-            // 🎬 5. 기능 이동 인터랙션 감지 시 팁 자동 로테이션 가속화
-            triggerDynamicTip();
+            triggerDynamicTip(); // 화면 이동이 일어날 때마다 새로운 실생활 팁 믹싱 로출
         }
 
         function showHome() { switchView(workspaceView, homeView, () => { toolContents.forEach(t => t.style.display = 'none'); }); }
         function openTool(id) { switchView(homeView, workspaceView, () => { document.getElementById(id).style.display = 'block'; if(id==='calculator-tool') { renderDisplay(fullExpression); autoScrollToRight(); } }); }
 
-        /* 🎬 2. 의견 내기 먹통 버그 수정 및 프리미엄 토스트 연동 모듈 */
-        function submitFeedback() {
+        /* 🎬 1. 의견 수렴 모달 레이어 작동 제어 함수 스크립트 */
+        function openFeedbackModal() {
+            document.getElementById('feedback-text-input').value = '';
+            document.getElementById('feedback-modal-layer').classList.add('show');
+        }
+        function closeFeedbackModal() {
+            document.getElementById('feedback-modal-layer').classList.remove('show');
+        }
+        function confirmFeedbackSubmit() {
+            const textContent = document.getElementById('feedback-text-input').value.trim();
+            if(!textContent) {
+                alert(langData[currentLang].alertEmpty);
+                return;
+            }
+            closeFeedbackModal();
+            
+            // 전송 완료 토스트 팝업 표출 알림 연동
             const toast = document.getElementById('toast-alert');
             toast.textContent = langData[currentLang].toastSuccess;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        /* [1] 계산기 (🎬 3. 입력 피드백 애니메이션 이식 파트) */
+        /* 🎬 3. 왼쪽 상단 로고 10회 고속 연타 체크 및 이스터에그 발동 시스템 */
+        let logoClicks = [];
+        function handleLogoClick() {
+            const now = Date.now();
+            logoClicks.push(now);
+            // 최근 3초 이내의 클릭 수만 필터링하여 관리
+            logoClicks = logoClicks.filter(timestamp => now - timestamp < 3000);
+
+            if(logoClicks.length >= 10) {
+                triggerFireworks();
+                logoClicks = []; // 카운터 초기화
+            }
+            showHome();
+        }
+
+        /* 🎬 3. 연타 성공 시 브라우저 단독 가속 구동형 파티클 폭죽 엔진 */
+        function triggerFireworks() {
+            const canvas = document.getElementById('easter-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.style.display = 'block';
+            
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+            
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = [];
+            const colors = ['#ff0055', '#00ffff', '#ffaa00', '#00ff55', '#9900ff', '#db2777', '#2563eb'];
+
+            // 폭죽 중심체 수 생성
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const originX = width * (0.15 + Math.random() * 0.7);
+                    const originY = height * (0.2 + Math.random() * 0.4);
+                    const pCount = 60 + Math.floor(Math.random() * 40);
+                    const blastColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    for (let j = 0; j < pCount; j++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 2 + Math.random() * 7;
+                        particles.push({
+                            x: originX, y: originY,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            alpha: 1,
+                            decay: 0.015 + Math.random() * 0.02,
+                            color: blastColor,
+                            radius: 1.5 + Math.random() * 2.5
+                        });
+                    }
+                }, i * 250);
+            }
+
+            let animationId;
+            function renderLoop() {
+                ctx.clearRect(0, 0, width, height);
+                let alive = false;
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    if (p.alpha <= 0) continue;
+
+                    alive = true;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.08; // 미세 중력 가속 법칙 부여
+                    p.alpha -= p.decay;
+
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = p.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                if (alive) {
+                    animationId = requestAnimationFrame(renderLoop);
+                } else {
+                    cancelAnimationFrame(animationId);
+                    canvas.style.display = 'none';
+                }
+            }
+            renderLoop();
+        }
+
+        /* [1] 계산기 연산 컴포넌트 */
         const display = document.getElementById('result'); const container = document.getElementById('display-container');
         let fullExpression = '0';
         function autoScrollToRight() { if(container) requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; }); }
         
         function animateDisplayPop() {
             display.classList.remove('pop-anim');
-            void display.offsetWidth; // 브라우저가 애니메이션을 다시 인지하도록 강제 트리거
+            void display.offsetWidth;
             display.classList.add('pop-anim');
             setTimeout(() => display.classList.remove('pop-anim'), 80);
         }
@@ -662,7 +825,7 @@
             triggerDynamicTip();
         }
 
-        /* 🎬 7. 로지텍 G HUB 기반 테크니컬 RGB 슬롯 휠 엔진 및 데이터 확장 스케일 가변형 모듈 */
+        /* [4] 랜덤 추첨기 */
         let pickerRunning = false;
         function pickRandom() {
             if(pickerRunning) return;
@@ -678,17 +841,12 @@
             pickerRunning = true;
             btn.disabled = true;
 
-            // 로지텍 G HUB 스타일의 기하급수 풍부도 측정: 아이템 개수가 많을수록 더 밀도 높은 파괴력 연출 분기
             const isHighDensity = items.length >= 6;
-            if (isHighDensity) {
-                neonBorder.classList.add('logitech-active-high');
-            } else {
-                neonBorder.classList.add('logitech-active-low');
-            }
+            if (isHighDensity) neonBorder.classList.add('logitech-active-high');
+            else neonBorder.classList.add('logitech-active-low');
 
-            // 고정 연출 시간을 더 깊고 가치 있게 몰입시키기 위해 기존 7초에서 9.5초(9500ms)로 최적 상향 연장
             const totalDuration = 9500; 
-            const tickInterval = isHighDensity ? 40 : 65; // 고밀도 시 슬롯 회전 속도 극대화 가속
+            const tickInterval = isHighDensity ? 40 : 65;
             let elapsed = 0;
 
             let intervalTimer = setInterval(() => {
@@ -701,13 +859,10 @@
                 clearInterval(intervalTimer);
                 pickerRunning = false;
                 btn.disabled = false;
-                
-                // 로지텍 네온 테두리 해제
                 neonBorder.classList.remove('logitech-active-low', 'logitech-active-high');
 
                 const finalChoice = items[Math.floor(Math.random() * items.length)];
                 textNode.innerHTML = `🎯 <span style='color: #db2777; font-size: 1.35rem; font-weight:800; text-shadow: 0 0 10px rgba(219,39,119,0.2);'>${finalChoice}</span>`;
-                
                 triggerDynamicTip();
             }, totalDuration);
         }
@@ -745,7 +900,6 @@
             const targetVal = document.getElementById('password-result').value;
             const copyBtn = document.getElementById('btn-pw-copy');
             if(!targetVal) return;
-
             navigator.clipboard.writeText(targetVal).then(() => {
                 copyBtn.textContent = langData[currentLang].pwCopied;
                 setTimeout(() => { copyBtn.textContent = langData[currentLang].pwCopy; }, 1500);
@@ -781,93 +935,60 @@
 
         /* [8] 단위 변환기 */
         const unitDatabase = {
-            length: {
-                units: ['mm', 'cm', 'm', 'km', 'inch', 'ft', 'yd'],
-                rates: { mm: 0.001, cm: 0.01, m: 1, km: 1000, inch: 0.0254, ft: 0.3048, yd: 0.9144 }
-            },
-            weight: {
-                units: ['g', 'kg', 'lb', 'oz', '돈(don)', '냥(nyang)'],
-                rates: { g: 1, kg: 1000, lb: 453.592, oz: 28.3495, '돈(don)': 3.75, '냥(nyang)': 37.5 }
-            },
-            area: {
-                units: ['m²', 'km²', '평(pyeong)', 'ha', 'ac'],
-                rates: { 'm²': 1, 'km²': 1000000, '평(pyeong)': 3.30578, ha: 10000, ac: 4046.86 }
-            },
-            volume: {
-                units: ['mL', 'L', 'gal', 'cup', 'fl oz'],
-                rates: { mL: 1, L: 1000, gal: 3785.41, cup: 200, 'fl oz': 29.5735 }
-            },
+            length: { units: ['mm', 'cm', 'm', 'km', 'inch', 'ft', 'yd'], rates: { mm: 0.001, cm: 0.01, m: 1, km: 1000, inch: 0.0254, ft: 0.3048, yd: 0.9144 } },
+            weight: { units: ['g', 'kg', 'lb', 'oz', '돈(don)', '냥(nyang)'], rates: { g: 1, kg: 1000, lb: 453.592, oz: 28.3495, '돈(don)': 3.75, '냥(nyang)': 37.5 } },
+            area: { units: ['m²', 'km²', '평(pyeong)', 'ha', 'ac'], rates: { 'm²': 1, 'km²': 1000000, '평(pyeong)': 3.30578, ha: 10000, ac: 4046.86 } },
+            volume: { units: ['mL', 'L', 'gal', 'cup', 'fl oz'], rates: { mL: 1, L: 1000, gal: 3785.41, cup: 200, 'fl oz': 29.5735 } },
             temp: { units: ['°C', '°F', 'K'] }
         };
 
         function setupCategoryStrings() {
             const catSelect = document.getElementById('unit-category');
-            const savedValue = catSelect.value || 'length';
-            catSelect.innerHTML = '';
-
+            const savedValue = catSelect.value || 'length'; catSelect.innerHTML = '';
             Object.keys(unitDatabase).forEach(key => {
-                const opt = document.createElement('option');
-                opt.value = key;
-                opt.textContent = langData[currentLang][`cat_${key}`];
-                catSelect.appendChild(opt);
+                const opt = document.createElement('option'); opt.value = key; opt.textContent = langData[currentLang][`cat_${key}`]; catSelect.appendChild(opt);
             });
             catSelect.value = savedValue;
         }
 
         function buildUnitDropdowns() {
             const category = document.getElementById('unit-category').value;
-            const srcSelect = document.getElementById('unit-select-src');
-            const destSelect = document.getElementById('unit-select-dest');
-
+            const srcSelect = document.getElementById('unit-select-src'); const destSelect = document.getElementById('unit-select-dest');
             srcSelect.innerHTML = ''; destSelect.innerHTML = '';
-            unitDatabase[category].units.forEach(u => {
-                srcSelect.appendChild(new Option(u, u));
-                destSelect.appendChild(new Option(u, u));
-            });
-
+            unitDatabase[category].units.forEach(u => { srcSelect.appendChild(new Option(u, u)); destSelect.appendChild(new Option(u, u)); });
             if(destSelect.options[1]) destSelect.selectedIndex = 1;
             executeUnitConversion(1);
         }
 
         function executeUnitConversion(triggerId) {
             const category = document.getElementById('unit-category').value;
-            const srcUnit = document.getElementById('unit-select-src').value;
-            const destUnit = document.getElementById('unit-select-dest').value;
-            const srcInput = document.getElementById('unit-val-src');
-            const destInput = document.getElementById('unit-val-dest');
-
+            const srcUnit = document.getElementById('unit-select-src').value; const destUnit = document.getElementById('unit-select-dest').value;
+            const srcInput = document.getElementById('unit-val-src'); const destInput = document.getElementById('unit-val-dest');
             let inputVal = triggerId === 1 ? parseFloat(srcInput.value) : parseFloat(destInput.value);
             if(isNaN(inputVal)) { if(triggerId===1) destInput.value=""; else srcInput.value=""; return; }
 
             if(category === 'temp') {
-                let fromUnit = triggerId === 1 ? srcUnit : destUnit;
-                let toUnit = triggerId === 1 ? destUnit : srcUnit;
+                let fromUnit = triggerId === 1 ? srcUnit : destUnit; let toUnit = triggerId === 1 ? destUnit : srcUnit;
                 let celsius = 0;
                 if(fromUnit === '°C') celsius = inputVal;
                 else if(fromUnit === '°F') celsius = (inputVal - 32) * 5 / 9;
                 else if(fromUnit === 'K') celsius = inputVal - 273.15;
-
                 let calculated = 0;
                 if(toUnit === '°C') calculated = celsius;
                 else if(toUnit === '°F') calculated = (celsius * 9 / 5) + 32;
                 else if(toUnit === 'K') calculated = celsius + 273.15;
-
-                if(triggerId === 1) destInput.value = parseFloat(calculated.toFixed(4));
-                else srcInput.value = parseFloat(calculated.toFixed(4));
+                if(triggerId === 1) destInput.value = parseFloat(calculated.toFixed(4)); else srcInput.value = parseFloat(calculated.toFixed(4));
                 return;
             }
 
             const rates = unitDatabase[category].rates;
             if(triggerId === 1) {
-                let baseVal = inputVal * rates[srcUnit];
-                destInput.value = parseFloat((baseVal / rates[destUnit]).toFixed(5));
+                let baseVal = inputVal * rates[srcUnit]; destInput.value = parseFloat((baseVal / rates[destUnit]).toFixed(5));
             } else {
-                let baseVal = inputVal * rates[destUnit];
-                srcInput.value = parseFloat((baseVal / rates[srcUnit]).toFixed(5));
+                let baseVal = inputVal * rates[destUnit]; srcInput.value = parseFloat((baseVal / rates[srcUnit]).toFixed(5));
             }
         }
 
-        // 초기 앱 마운트 설정
         homeView.classList.add('active');
         setTimeout(() => { homeView.classList.add('visible'); }, 50);
         setupCategoryStrings();
