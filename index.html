@@ -89,7 +89,6 @@
             outline: none; touch-action: manipulation; display: flex; align-items: center; gap: 4px;
         }
 
-        /* 🎬 4. 언어 선택 드롭다운 가속 탄성 애니메이션 세팅 */
         .lang-dropdown-wrapper { position: relative; }
         .lang-dropdown-list {
             position: absolute; top: calc(100% + 8px); right: 0;
@@ -189,7 +188,6 @@
         .toss-banner .suggest-btn:active { transform: scale(0.95); }
         .tip-widget { text-align: center; color: var(--text-sub); font-size: 0.8rem; font-weight: 500; min-height: 18px; transition: opacity 0.2s ease, transform 0.2s ease; }
 
-        /* 🎬 1. 의견 수렴 커스텀 대화형 모달 상자 UI 디자인 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: var(--modal-overlay); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
@@ -221,25 +219,26 @@
         .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         body.dark .toast-msg { background: rgba(255, 255, 255, 0.95); color: #0f172a; }
 
+        /* 🎬 1. 전체 화면 가장자리에 매핑되도록 fixed 속성으로 이펙트 오버레이 구조 정의 */
         .logitech-neon-border {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; border-radius: 14px; z-index: 5;
-            box-shadow: inset 0 0 0px var(--input-border);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; border-radius: 0; z-index: 9999;
+            box-shadow: inset 0 0 0px transparent;
+            transition: box-shadow 0.3s ease;
         }
         @keyframes logitech-wave-low {
-            0% { box-shadow: inset 0 0 15px #00ffff, 0 0 10px #00ffff; }
-            50% { box-shadow: inset 0 0 25px #aa00ff, 0 0 15px #aa00ff; }
-            100% { box-shadow: inset 0 0 15px #00ffff, 0 0 10px #00ffff; }
+            0% { box-shadow: inset 0 0 20px #00ffff, 0 0 12px #00ffff; }
+            50% { box-shadow: inset 0 0 35px #aa00ff, 0 0 20px #aa00ff; }
+            100% { box-shadow: inset 0 0 20px #00ffff, 0 0 12px #00ffff; }
         }
         @keyframes logitech-wave-high {
-            0% { box-shadow: inset 0 0 25px #00ffff, 0 0 15px #ff0055; filter: hue-rotate(0deg); }
-            50% { box-shadow: inset 0 0 40px #00ff55, 0 0 25px #ffaa00; filter: hue-rotate(180deg); }
-            100% { box-shadow: inset 0 0 25px #00ffff, 0 0 15px #ff0055; filter: hue-rotate(360deg); }
+            0% { box-shadow: inset 0 0 30px #00ffff, 0 0 20px #ff0055; filter: hue-rotate(0deg); }
+            50% { box-shadow: inset 0 0 50px #00ff55, 0 0 30px #ffaa00; filter: hue-rotate(180deg); }
+            100% { box-shadow: inset 0 0 30px #00ffff, 0 0 20px #ff0055; filter: hue-rotate(360deg); }
         }
-        .logitech-active-low { animation: logitech-wave-low 1.2s linear infinite; border: 2px solid #00ffff !important; }
-        .logitech-active-high { animation: logitech-wave-high 0.6s linear infinite; border: 2px solid #ff0055 !important; }
+        .logitech-active-low { animation: logitech-wave-low 1.2s linear infinite; border: 4px solid #00ffff !important; }
+        .logitech-active-high { animation: logitech-wave-high 0.6s linear infinite; border: 5px solid #ff0055 !important; }
 
-        /* 🎬 3. 이스터에그 파티클 캔버스 레이어 단독 배치 */
         #easter-canvas {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 99999; display: none;
@@ -256,11 +255,12 @@
 </head>
 <body>
 
-    <!-- 이스터에그 전용 특수 효과 렌더러 -->
+    <!-- 🎬 1. 화면 전체 가장자리를 덮을 네온 이펙트 컴포넌트 위치 변경 -->
+    <div class="logitech-neon-border" id="logitech-border"></div>
+
     <canvas id="easter-canvas"></canvas>
 
     <header>
-        <!-- 🎬 3. 이스터에그 연타 인터랙션 핸들러 위임 -->
         <h1 onclick="handleLogoClick()">✨ UtiliTools</h1>
         <div class="controls">
             <button class="control-btn" onclick="toggleTheme()" id="theme-btn">🌙 다크 모드</button>
@@ -279,7 +279,6 @@
     </header>
 
     <div class="container">
-        <!-- 홈 대시보드 구조 -->
         <div id="home-view" class="view-frame">
             <div class="dashboard-intro">
                 <h2 id="txt-main-title">오늘 어떤 도구가 필요하세요?</h2>
@@ -314,7 +313,6 @@
             </div>
         </div>
 
-        <!-- 작업 워크스페이스 구조 -->
         <div id="workspace-view" class="view-frame workspace">
             <button class="back-btn" onclick="showHome()" id="txt-back">← 돌아가기</button>
             
@@ -343,10 +341,9 @@
             <!-- [4] 랜덤 추첨기 -->
             <div id="picker-tool" class="tool-content" style="display:none;">
                 <div class="tool-title" id="t-pick-title">🎰 무작위 랜덤 추첨기</div>
-                <textarea id="picker-items" rows="4" placeholder="항목을 쉼표(,)나 줄바꿈으로 구분해 기입해주세요. 항목이 많을수록 이펙트가 고조됩니다."></textarea>
+                <textarea id="picker-items" rows="4" placeholder="항목을 쉼표(,)나 줄바꿈으로 구분해 기입해주세요."></textarea>
                 <button class="action-btn" id="btn-pick" onclick="pickRandom()">🎯 추첨하기</button>
                 <div class="result-box" id="picker-result">
-                    <div class="logitech-neon-border" id="logitech-border"></div>
                     <span id="picker-text-node">최종 낙점될 주인공은 누구일까요?</span>
                 </div>
             </div>
@@ -409,17 +406,14 @@
         </div>
     </div>
 
-    <!-- 하단 푸터 배너 영역 -->
     <footer>
         <div class="toss-banner">
             <div class="toss-banner-text"><h4 id="banner-title">내가 찾는 도구가 없나요?</h4><p id="banner-desc">필요한 기능이 있다면 언제든 편하게 알려주세요.</p></div>
-            <!-- 🎬 1. 버그 수정: 바로 제출되지 않고 모달창을 띄우도록 이벤트 연결 변경 -->
             <button class="suggest-btn" id="banner-btn" onclick="openFeedbackModal()">의견 내기</button>
         </div>
         <div class="tip-widget" id="tip-display">💡</div>
     </footer>
 
-    <!-- 🎬 1. 의견 수렴용 인풋 모달 레이어 구조 배치 -->
     <div class="modal-overlay" id="feedback-modal-layer" onclick="closeFeedbackModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
             <h3 id="md-title">유저 의견 보내기</h3>
@@ -490,7 +484,7 @@
                 pickTitle: "ランダム抽選", pickDesc: "入力されたリストからランダムに項目を公正に抽出します。",
                 bmiTitle: "BMI計算機", bmiDesc: "身長と体重データに基づいて体格指数を測定します。",
                 pwTitle: "パスワード生成", pwDesc: "ユーザー設定의 ルールに従って安全なランダム暗号を生成します。",
-                stopTitle: "ストップウォッチ", stopDesc: "0.01秒単位の精密な時間計測機能を実行します。",
+                stopTitle: "ストップウォッチ", stopDesc: "0.01秒単位의 精密な時間計測機能を実行します。",
                 unitTitle: "単位変換器", unitDesc: "長さ、重量、面積、体積、温度などの単位를 相互換算します。",
                 back: "← 戻る", tCountTitle: "✍️ 文字数カウンター", lblSpaceInc: "空白含む", lblSpaceExc: "空白除く",
                 tDdayTitle: "📅 D-Day計算", ddayDefault: "日付を選択するとカウントが始まります。", tPickTitle: "🎰 ランダム抽選機", btnPick: "🎯 抽選する", pickDefault: "当選者は誰でしょうか？",
@@ -549,7 +543,6 @@
             }
         };
 
-        /* 🎬 2. 실생활에서 100% 즉시 체감 가능한 유용성 위주의 다국어 리얼 라이프 팁 매트릭스 */
         const tipsDatabase = {
             ko: [
                 "💡 생활 팁: 딸기를 씻을 때 식초를 살짝 넣으면 표면 잔류 농약 제거에 아주 효과적입니다.",
@@ -630,7 +623,6 @@
             
             document.getElementById('banner-title').textContent = l.bTitle; document.getElementById('banner-desc').textContent = l.bDesc; document.getElementById('banner-btn').textContent = l.bBtn;
             
-            // 모달창 내부 텍스트 언어팩 바인딩
             document.getElementById('md-title').textContent = l.mdTitle;
             document.getElementById('md-desc').textContent = l.mdDesc;
             document.getElementById('md-cancel').textContent = l.mdCancel;
@@ -640,7 +632,6 @@
             setupCategoryStrings(); triggerDynamicTip();
         }
 
-        /* 🎬 2. 실생활 꿀팁들이 무작위 순환 표출되는 시스템 엔진 */
         function triggerDynamicTip() {
             const displayBox = document.getElementById('tip-display');
             displayBox.style.opacity = '0';
@@ -660,6 +651,9 @@
         const workspaceView = document.getElementById('workspace-view');
         const toolContents = document.querySelectorAll('.tool-content');
 
+        /* 🎬 2. 동시 더블 클릭으로 여러 도구창이 오버랩 출력되는 레이스 컨디션 해결 */
+        let isViewChanging = false;
+
         function switchView(fromView, toView, callback) {
             fromView.classList.remove('visible');
             setTimeout(() => {
@@ -668,13 +662,31 @@
                 if(callback) callback();
                 requestAnimationFrame(() => { setTimeout(() => { toView.classList.add('visible'); }, 20); });
             }, 250);
-            triggerDynamicTip(); // 화면 이동이 일어날 때마다 새로운 실생활 팁 믹싱 로출
+            triggerDynamicTip();
         }
 
-        function showHome() { switchView(workspaceView, homeView, () => { toolContents.forEach(t => t.style.display = 'none'); }); }
-        function openTool(id) { switchView(homeView, workspaceView, () => { document.getElementById(id).style.display = 'block'; if(id==='calculator-tool') { renderDisplay(fullExpression); autoScrollToRight(); } }); }
+        function showHome() { 
+            if (isViewChanging) return;
+            isViewChanging = true;
+            switchView(workspaceView, homeView, () => { 
+                toolContents.forEach(t => t.style.display = 'none'); 
+                isViewChanging = false; // 연출 완료 후 해제
+            }); 
+        }
 
-        /* 🎬 1. 의견 수렴 모달 레이어 작동 제어 함수 스크립트 */
+        function openTool(id) { 
+            if (isViewChanging) return;
+            isViewChanging = true;
+            // 혹시 열려있을지 모를 다른 컴포넌트들을 완벽히 단속
+            toolContents.forEach(t => t.style.display = 'none'); 
+            
+            switchView(homeView, workspaceView, () => { 
+                document.getElementById(id).style.display = 'block'; 
+                if(id==='calculator-tool') { renderDisplay(fullExpression); autoScrollToRight(); } 
+                isViewChanging = false; // 안착 완료 후 해제
+            }); 
+        }
+
         function openFeedbackModal() {
             document.getElementById('feedback-text-input').value = '';
             document.getElementById('feedback-modal-layer').classList.add('show');
@@ -689,30 +701,26 @@
                 return;
             }
             closeFeedbackModal();
-            
-            // 전송 완료 토스트 팝업 표출 알림 연동
             const toast = document.getElementById('toast-alert');
             toast.textContent = langData[currentLang].toastSuccess;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        /* 🎬 3. 왼쪽 상단 로고 10회 고속 연타 체크 및 이스터에그 발동 시스템 */
+        /* 🎬 3. 이스터에그 발동 윈도우 판정 조건을 3초에서 5초(5000ms) 내 10회 연속 클릭으로 유연하게 스케일 조정 */
         let logoClicks = [];
         function handleLogoClick() {
             const now = Date.now();
             logoClicks.push(now);
-            // 최근 3초 이내의 클릭 수만 필터링하여 관리
-            logoClicks = logoClicks.filter(timestamp => now - timestamp < 3000);
+            logoClicks = logoClicks.filter(timestamp => now - timestamp < 5000);
 
             if(logoClicks.length >= 10) {
                 triggerFireworks();
-                logoClicks = []; // 카운터 초기화
+                logoClicks = [];
             }
             showHome();
         }
 
-        /* 🎬 3. 연타 성공 시 브라우저 단독 가속 구동형 파티클 폭죽 엔진 */
         function triggerFireworks() {
             const canvas = document.getElementById('easter-canvas');
             const ctx = canvas.getContext('2d');
@@ -729,7 +737,6 @@
             const particles = [];
             const colors = ['#ff0055', '#00ffff', '#ffaa00', '#00ff55', '#9900ff', '#db2777', '#2563eb'];
 
-            // 폭죽 중심체 수 생성
             for (let i = 0; i < 5; i++) {
                 setTimeout(() => {
                     const originX = width * (0.15 + Math.random() * 0.7);
@@ -765,7 +772,7 @@
                     alive = true;
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.vy += 0.08; // 미세 중력 가속 법칙 부여
+                    p.vy += 0.08;
                     p.alpha -= p.decay;
 
                     ctx.save();
@@ -789,7 +796,7 @@
             renderLoop();
         }
 
-        /* [1] 계산기 연산 컴포넌트 */
+        /* [1] 계산기 */
         const display = document.getElementById('result'); const container = document.getElementById('display-container');
         let fullExpression = '0';
         function autoScrollToRight() { if(container) requestAnimationFrame(() => { container.scrollLeft = container.scrollWidth; }); }
@@ -841,17 +848,18 @@
             pickerRunning = true;
             btn.disabled = true;
 
-            const isHighDensity = items.length >= 6;
-            if (isHighDensity) neonBorder.classList.add('logitech-active-high');
-            else neonBorder.classList.add('logitech-active-low');
+            // 🎬 1. 기존 화면 테두리 효과가 롤링 도중 켜지지 않게 초기화 상태 유지
+            neonBorder.classList.remove('logitech-active-low', 'logitech-active-high');
 
-            const totalDuration = 9500; 
+            const isHighDensity = items.length >= 6;
+            const totalDuration = 2500; // 가독성과 텐션을 잃지 않도록 롤링 주기를 2.5초 스케일로 압축 조정
             const tickInterval = isHighDensity ? 40 : 65;
             let elapsed = 0;
 
             let intervalTimer = setInterval(() => {
                 const temp = items[Math.floor(Math.random() * items.length)];
-                textNode.innerHTML = `⚙️ <span style="color:var(--text-sub); font-family: monospace;">G-MATRIX ROLLING... [ ${temp} ]</span>`;
+                // 🎬 1. 영문 기계식 메시지 대신 직관적인 한국어 지시어로 교체
+                textNode.innerHTML = `⚙️ <span style="color:var(--text-sub); font-family: monospace; font-weight:700;">뽑기 중... [ ${temp} ]</span>`;
                 elapsed += tickInterval;
             }, tickInterval);
 
@@ -859,10 +867,19 @@
                 clearInterval(intervalTimer);
                 pickerRunning = false;
                 btn.disabled = false;
-                neonBorder.classList.remove('logitech-active-low', 'logitech-active-high');
 
                 const finalChoice = items[Math.floor(Math.random() * items.length)];
                 textNode.innerHTML = `🎯 <span style='color: #db2777; font-size: 1.35rem; font-weight:800; text-shadow: 0 0 10px rgba(219,39,119,0.2);'>${finalChoice}</span>`;
+                
+                // 🎬 1. 결과가 도출된 직후 밀도 조건에 맞추어 전체 화면 가장자리에 반짝이 이펙트 강제 트리거
+                if (isHighDensity) neonBorder.classList.add('logitech-active-high');
+                else neonBorder.classList.add('logitech-active-low');
+
+                // 정확히 3초(3000ms) 경과 뒤 가장자리 네온 아웃라인을 소멸 처리
+                setTimeout(() => {
+                    neonBorder.classList.remove('logitech-active-low', 'logitech-active-high');
+                }, 3000);
+
                 triggerDynamicTip();
             }, totalDuration);
         }
